@@ -13,7 +13,9 @@ class Turtle {
     this.color = 'black'
 
     this.distance = 0
-    this.move = false
+    this.move = []
+    this.draw_moves = [{x:0, y:0}]
+    this.new_position = {x:0, y:0}
     this.asdf = false
     this.angle = 0
 
@@ -56,32 +58,44 @@ class Turtle {
 
   update(progress) {
     if(this.move) {
-      let new_position = this.position.rotate(this.angle, this.distance)
+      while(this.move.length) {
+        // while(true) {
+          this.new_position = this.position.rotate(this.move[0].angle, this.move[0].distance, this.new_position)
+          console.log('***********************')
+          console.log(this.move[0])
+          console.log(this.new_position)
+          console.log('***********************')
 
-      if(this.asdf) {
-        this.velX = (new_position.x - this.position.x)/progress;
-        this.velY = (new_position.y - this.position.y)/progress;
-        this.asdf = false
-      }
+          // if(this.asdf) {
+            // this.velX = 1*progress;
+            // this.velY = 1*progress;
+            // this.asdf = false
+          // }
 
-      this.position.x += this.velX;
-      this.position.y += this.velY;
+          // this.position.x += this.velX;
+          // this.position.y += this.velY;
 
-      this.distance -= Math.abs(this.velX);
-      this.distance -= Math.abs(this.velY);
+          // this.move[i].distance -= Math.abs(this.velX);
+          // this.move[i].distance -= Math.abs(this.velY);
 
-      if(this.distance <= 0) {
-        this.position.x = new_position.x
-        this.position.y = new_position.y
-        this.move = false
+          // if(this.distance <= 0) {
+            // this.position.x = new_position.x
+            // this.position.y = new_position.y
+
+            this.draw_moves.push(this.new_position)
+            this.move.splice(0, 1)
+            // break;
+          // }
+        // }
       }
     }
   }
 
   forward(value) {
-    this.move = true
+    this.move.push({distance: value, angle: this.angle})
     this.asdf = true
-    this.distance = value
+
+    // this.distance = value
   }
 
   right(value) {
@@ -103,7 +117,10 @@ class Turtle {
 
   draw() {
     this.context.strokeStyle = this.color;
-    this.context.lineTo(this.position.x, this.position.y)
+    while(this.draw_moves.length) {
+      this.context.lineTo(this.draw_moves[0].x, this.draw_moves[0].y)
+      this.draw_moves.splice(0, 1);
+    }
     this.context.stroke();
   }
 }
@@ -116,10 +133,10 @@ class Point {
     this.angle_in_degrees = this.angle_in_degrees.bind(this)
   }
 
-  rotate(angle, distance) {
+  rotate(angle, distance, position) {
     return {
-      x: this.x + distance * (Math.cos(this.angle_in_degrees(angle))),
-      y: this.y + distance * (Math.sin(this.angle_in_degrees(angle)))
+      x: position.x + distance * (Math.cos(this.angle_in_degrees(angle))),
+      y: position.y + distance * (Math.sin(this.angle_in_degrees(angle)))
     }
   }
 
@@ -138,10 +155,10 @@ class Line {
     this.angle_in_degrees = this.angle_in_degrees.bind(this)
   }
 
-  rotate(angle, distance) {
+  rotate(angle, distance, position) {
     return {
-      x: this.x + distance * (Math.cos(this.angle_in_degrees(angle))),
-      y: this.y + distance * (Math.sin(this.angle_in_degrees(angle)))
+      x: position[0].x + distance * (Math.cos(this.angle_in_degrees(angle))),
+      y: position[0].y + distance * (Math.sin(this.angle_in_degrees(angle)))
     }
   }
 

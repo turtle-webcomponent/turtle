@@ -9,7 +9,7 @@ class Turtle {
 
     this.distance = 0
     this.move = []
-    this.draw_moves = [{x:0, y:0, rep: false}]
+    this.draw_moves = [{x:0, y:0, type: 'move'}]
     this.new_position = {x:0, y:0}
     this.angle = 0
 
@@ -49,14 +49,17 @@ class Turtle {
   update(progress) {
     if(this.move) {
       while(this.move.length) {
-        if(this.move[0].rep) {
-          this.draw_moves.push({x: this.move[0].x, y: this.move[0].y, rep: true})
+        if(this.move[0].type === 'reposition') {
+          this.draw_moves.push({x: this.move[0].x, y: this.move[0].y, type: this.move[0].type})
           this.new_position.x = this.move[0].x;
           this.new_position.y = this.move[0].y;
         }
-        else {
+        else if(this.move[0].type === 'move'){
           this.new_position = this.position.rotate(this.move[0].angle, this.move[0].distance, this.new_position)
-          this.draw_moves.push({x: this.new_position.x, y: this.new_position.y, rep: false})
+          this.draw_moves.push({x: this.new_position.x, y: this.new_position.y, type: this.move[0].type})
+        }
+        else if(this.move[0].type === 'circle') {
+          this.draw_moves.push({x: this.new_position.x, y: this.new_position.y, type: this.move[0].type, radius: this.move[0].radius})
         }
         this.move.splice(0, 1)
       }
@@ -64,7 +67,15 @@ class Turtle {
   }
 
   forward(value) {
-    this.move.push({distance: value, angle: this.angle})
+    this.move.push({distance: value, angle: this.angle, type: 'move'})
+  }
+
+  backward(value) {
+    this.forward(value*-1)
+  }
+
+  circle(radius) {
+    this.move.push({radius: radius, type: 'circle'})
   }
 
   right(value) {
@@ -81,21 +92,27 @@ class Turtle {
   }
 
   set_position(x, y) {
-    this.move.push({x: x, y: y, rep: true})
+    this.move.push({x: x, y: y, type: 'reposition'})
   }
 
   draw() {
     this.context.strokeStyle = this.color;
     while(this.draw_moves.length) {
-      if(this.draw_moves[0].rep) {
+      if(this.draw_moves[0].type === 'reposition') {
         this.context.moveTo(this.draw_moves[0].x, this.draw_moves[0].y)
+        this.context.stroke();
       }
-      else {
+      else if(this.draw_moves[0].type === 'move') {
         this.context.lineTo(this.draw_moves[0].x, this.draw_moves[0].y)
+        this.context.stroke();
+      }
+      else if(this.draw_moves[0].type === 'circle') {
+        this.context.beginPath();
+        this.context.arc(this.draw_moves[0].x,this.draw_moves[0].y,this.draw_moves[0].radius,0,2*Math.PI);
+        this.context.stroke();
       }
       this.draw_moves.splice(0, 1);
     }
-    this.context.stroke();
   }
 }
 

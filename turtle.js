@@ -61,6 +61,15 @@ class Turtle {
         else if(this.move[0].type === 'circle') {
           this.draw_moves.push({x: this.new_position.x, y: this.new_position.y, type: this.move[0].type, radius: this.move[0].radius})
         }
+        else if(this.move[0].type === 'rectangle') {
+          this.draw_moves.push({
+            x: this.new_position.x,
+            y: this.new_position.y,
+            width: this.move[0].width,
+            height: this.move[0].height,
+            type: this.move[0].type
+          })
+        }
         this.move.splice(0, 1)
       }
     }
@@ -76,6 +85,10 @@ class Turtle {
 
   circle(radius) {
     this.move.push({radius: radius, type: 'circle'})
+  }
+
+  rectangle(width, height) {
+    this.move.push({width: width, height: height, type: 'rectangle'})
   }
 
   right(value) {
@@ -109,6 +122,11 @@ class Turtle {
       else if(this.draw_moves[0].type === 'circle') {
         this.context.beginPath();
         this.context.arc(this.draw_moves[0].x,this.draw_moves[0].y,this.draw_moves[0].radius,0,2*Math.PI);
+        this.context.stroke();
+      }
+      else if(this.draw_moves[0].type === 'rectangle') {
+        this.context.beginPath();
+        this.context.rect(this.draw_moves[0].x, this.draw_moves[0].y, this.draw_moves[0].width, this.draw_moves[0].height);
         this.context.stroke();
       }
       this.draw_moves.splice(0, 1);

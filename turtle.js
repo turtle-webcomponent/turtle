@@ -55,6 +55,9 @@ class Turtle {
         else if (this.move[0].type === 'move') this.simple_move(progress)
         else if (this.move[0].type === 'circle') this.circle_move()
         else if (this.move[0].type === 'rectangle') this.rectangle_move()
+        else if(this.move[0].type === 'change_color') {
+          this.draw_moves.push({type: this.move[0].type, color: this.move[0].color})
+        }
 
         if (this.move[0].type !== 'move' || Math.round(this.move[0].distance) === 0) this.move.splice(0, 1)
       }
@@ -116,9 +119,8 @@ class Turtle {
     this.angle = 360 - value + this.angle
   }
 
-  set_line_color(value) {
-    this.color = value;
-    this.context.beginPath();
+  set_line_color(color) {
+    this.move.push({color: color, type: 'change_color'})
   }
 
   set_position(x, y) {
@@ -130,7 +132,6 @@ class Turtle {
   }
 
   draw() {
-    this.context.strokeStyle = this.color;
     this.context.lineWidth = this.line_width
     if(this.draw_moves.length) {
       if(this.draw_moves[0].type === 'reposition') {
@@ -146,6 +147,10 @@ class Turtle {
       else if(this.draw_moves[0].type === 'rectangle') {
         this.context.beginPath();
         this.context.rect(this.draw_moves[0].x, this.draw_moves[0].y, this.draw_moves[0].width, this.draw_moves[0].height);
+      }
+      else if(this.draw_moves[0].type === 'change_color') {
+        this.context.strokeStyle = this.draw_moves[0].color;
+        this.context.beginPath();
       }
       this.context.stroke();
 

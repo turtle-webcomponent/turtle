@@ -13,6 +13,7 @@ class Turtle {
     this.new_position = {x:0, y:0}
     this.angle = 0
     this.line_width = 2
+    this.speed = 1
 
     // Add canvas
     this.canvas = document.createElement("canvas");
@@ -50,30 +51,45 @@ class Turtle {
   update(progress) {
     if(this.move) {
       if(this.move.length) {
-        if(this.move[0].type === 'reposition') {
-          this.draw_moves.push({x: this.move[0].x, y: this.move[0].y, type: this.move[0].type})
-          this.new_position.x = this.move[0].x;
-          this.new_position.y = this.move[0].y;
-        }
-        else if(this.move[0].type === 'move'){
-          this.new_position = this.position.rotate(this.move[0].angle, this.move[0].distance, this.new_position)
-          this.draw_moves.push({x: this.new_position.x, y: this.new_position.y, type: this.move[0].type})
-        }
-        else if(this.move[0].type === 'circle') {
-          this.draw_moves.push({x: this.new_position.x, y: this.new_position.y, type: this.move[0].type, radius: this.move[0].radius})
-        }
-        else if(this.move[0].type === 'rectangle') {
-          this.draw_moves.push({
-            x: this.new_position.x,
-            y: this.new_position.y,
-            width: this.move[0].width,
-            height: this.move[0].height,
-            type: this.move[0].type
-          })
-        }
-        this.move.splice(0, 1)
+        if (this.move[0].type === 'reposition') this.reposition_move()
+        else if (this.move[0].type === 'move') this.simple_move(progress)
+        else if (this.move[0].type === 'circle') this.circle_move()
+        else if (this.move[0].type === 'rectangle') this.rectangle_move()
+
+        if (this.move[0].type !== 'move' || Math.round(this.move[0].distance) === 0) this.move.splice(0, 1)
       }
     }
+  }
+
+  reposition_move() {
+    this.draw_moves.push({ x: this.move[0].x, y: this.move[0].y, type: this.move[0].type })
+    this.new_position = { x: this.move[0].x, y: this.move[0].y }
+  }
+
+  simple_move(fps) {
+    var displacement = null;
+
+    if (this.move[0].distance < this.speed/10 * fps) displacement = this.move[0].distance;
+    else displacement = Math.round(this.speed/10 * fps)
+
+    this.move[0].distance -= displacement
+    this.new_position = this.position.rotate(this.move[0].angle, displacement, this.new_position)
+    // this.new_position = this.position.rotate(this.move[0].angle, this.move[0].distance, this.new_position)
+    this.draw_moves.push({ x: this.new_position.x, y: this.new_position.y, type: this.move[0].type })
+  }
+
+  circle_move() {
+    this.draw_moves.push({ x: this.new_position.x, y: this.new_position.y, type: this.move[0].type, radius: this.move[0].radius })
+  }
+
+  rectangle_move() {
+    this.draw_moves.push({
+      x: this.new_position.x,
+      y: this.new_position.y,
+      width: this.move[0].width,
+      height: this.move[0].height,
+      type: this.move[0].type
+    })
   }
 
   forward(value) {
@@ -153,7 +169,7 @@ class Point {
     }
   }
 
-  angle_in_degrees(angle) {
+   angle_in_degrees(angle) {
     return angle * Math.PI / 180
   }
 }

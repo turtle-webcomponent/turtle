@@ -12,6 +12,7 @@ class Turtle {
     this.draw_moves = [{x:0, y:0, type: 'move'}]
     this.new_position = {x:0, y:0}
     this.angle = 0
+    this.line_width = 2
 
     // Add canvas
     this.canvas = document.createElement("canvas");
@@ -48,7 +49,7 @@ class Turtle {
 
   update(progress) {
     if(this.move) {
-      while(this.move.length) {
+      if(this.move.length) {
         if(this.move[0].type === 'reposition') {
           this.draw_moves.push({x: this.move[0].x, y: this.move[0].y, type: this.move[0].type})
           this.new_position.x = this.move[0].x;
@@ -108,27 +109,30 @@ class Turtle {
     this.move.push({x: x, y: y, type: 'reposition'})
   }
 
+  set_line_width(value) {
+    this.line_width = value;
+  }
+
   draw() {
     this.context.strokeStyle = this.color;
-    while(this.draw_moves.length) {
+    this.context.lineWidth = this.line_width
+    if(this.draw_moves.length) {
       if(this.draw_moves[0].type === 'reposition') {
         this.context.moveTo(this.draw_moves[0].x, this.draw_moves[0].y)
-        this.context.stroke();
       }
       else if(this.draw_moves[0].type === 'move') {
         this.context.lineTo(this.draw_moves[0].x, this.draw_moves[0].y)
-        this.context.stroke();
       }
       else if(this.draw_moves[0].type === 'circle') {
         this.context.beginPath();
         this.context.arc(this.draw_moves[0].x,this.draw_moves[0].y,this.draw_moves[0].radius,0,2*Math.PI);
-        this.context.stroke();
       }
       else if(this.draw_moves[0].type === 'rectangle') {
         this.context.beginPath();
         this.context.rect(this.draw_moves[0].x, this.draw_moves[0].y, this.draw_moves[0].width, this.draw_moves[0].height);
-        this.context.stroke();
       }
+      this.context.stroke();
+
       this.draw_moves.splice(0, 1);
     }
   }
@@ -154,7 +158,29 @@ class Point {
   }
 }
 
-window.onload = function() {
-  turtle = new Turtle();
-  turtle.run();
+// window.onload = function() {
+//   turtle = new Turtle();
+//   turtle.run();
+// }
+
+
+class TurtleComponent extends HTMLElement {
+  constructor() {
+    super()
+    this.turtle = new Turtle();
+  }
+
+  connectedCallback() {
+    this.turtle.run();
+  }
+
+  getContext() {
+    return this.turtle
+  }
 }
+
+// window.onload = function() {
+//   turtle = new Turtle();
+//   turtle.run();
+  customElements.define('turtle-component', TurtleComponent);
+// }

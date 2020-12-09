@@ -158,11 +158,6 @@ class Point {
   }
 }
 
-// window.onload = function() {
-//   turtle = new Turtle();
-//   turtle.run();
-// }
-
 
 class TurtleComponent extends HTMLElement {
   constructor() {
@@ -179,8 +174,4 @@ class TurtleComponent extends HTMLElement {
   }
 }
 
-// window.onload = function() {
-//   turtle = new Turtle();
-//   turtle.run();
-  customElements.define('turtle-component', TurtleComponent);
-// }
+customElements.define('turtle-component', TurtleComponent);

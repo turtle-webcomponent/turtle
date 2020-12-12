@@ -1,27 +1,22 @@
 class Turtle {
 
-  constructor() {
+  //Add turtle picture
+  constructor(canvas) {
     this.lastRender = 0
-    this.width = 800
-    this.height = 600
     this.position = new Point(0,0)
     this.color = 'black'
 
     this.distance = 0
     this.move = []
-    this.draw_moves = [{x:0, y:0, type: 'move'}]
+    this.draw_moves = []
     this.new_position = {x:0, y:0}
     this.angle = 0
     this.line_width = 2
     this.speed = 1
 
-    // Add canvas
-    this.canvas = document.createElement("canvas");
-    this.canvas.width = this.width
-    this.canvas.height = this.height
-    this.canvas.style = "border: solid 1px black"
+    // Make this private
+    this.canvas = canvas;
     this.context = this.canvas.getContext("2d")
-    document.body.appendChild(this.canvas)
 
     // binds
     this.turtle = this.turtle.bind(this)
@@ -149,8 +144,8 @@ class Turtle {
         this.context.rect(this.draw_moves[0].x, this.draw_moves[0].y, this.draw_moves[0].width, this.draw_moves[0].height);
       }
       else if(this.draw_moves[0].type === 'change_color') {
-        this.context.strokeStyle = this.draw_moves[0].color;
         this.context.beginPath();
+        this.context.strokeStyle = this.draw_moves[0].color;
       }
       this.context.stroke();
 
@@ -181,13 +176,84 @@ class Point {
 
 
 class TurtleComponent extends HTMLElement {
+  static get observedAttributes() {
+    return [ 'width', 'height' ];
+  }
+
   constructor() {
     super()
-    this.turtle = new Turtle();
+    this.canvas = document.createElement("canvas");
+    this.turtle = {}
+
+    this.initializeCanvas = this.initializeCanvas.bind(this)
+    this.initializeTurtle = this.initializeTurtle.bind(this)
+  }
+
+  get width() {
+    return this.getAttribute('width');
+  }
+
+  set width(value) {
+      this.setAttribute('width', value);
+  }
+
+  get height() {
+      return this.getAttribute('height');
+  }
+
+  set height(value) {
+      this.setAttribute('height', value);
+  }
+
+  get canvasStyle() {
+    return this.getAttribute('canvas-style');
+  }
+
+  set canvasStyle(value) {
+    this.setAttribute('canvas-style', value);
   }
 
   connectedCallback() {
+    if (!this.width) {
+        this.rating = 300;
+    }
+    if (!this.height) {
+        this.maxRating = 300;
+    }
+    if (!this.canvasStyle) {
+      this.maxRating = "border: solid 1px black";
+    }
+
+    this.initializeCanvas()
+    this.initializeTurtle()
+  }
+
+  initializeCanvas() {
+    this.canvas.width = this.width
+    this.canvas.height = this.height
+    this.canvas.style = this.canvasStyle
+    document.body.appendChild(this.canvas)
+  }
+
+  initializeTurtle() {
+    this.turtle = new Turtle(this.canvas);
     this.turtle.run();
+  }
+
+  attributeChangedCallback(name, oldVal, newVal) {
+    if (oldVal !== newVal) {
+      switch(name) {
+          case 'width':
+              this.width = newVal;
+              break;
+          case 'height':
+              this.height = newVal;
+              break;
+          case 'canvas-style':
+            this.canvasStyle = newVal
+            break;
+      }
+    }
   }
 
   getContext() {
@@ -195,4 +261,4 @@ class TurtleComponent extends HTMLElement {
   }
 }
 
-customElements.define('turtle-component', TurtleComponent);
+customElements.define('x-turtle', TurtleComponent);

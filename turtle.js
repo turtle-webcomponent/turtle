@@ -67,11 +67,16 @@ class Turtle {
   simple_move(fps) {
     var displacement = null;
 
-    if (this.move[0].distance < this.speed/10 * fps) {
+    if (Math.abs(this.move[0].distance) < this.speed/10 * fps) {
       displacement = this.move[0].distance;
     }
     else {
-      displacement = Math.round(this.speed/10 * fps)
+      if(this.move[0].distance > 0) {
+        displacement = Math.round(this.speed/10 * fps)
+      }
+      else {
+        displacement = Math.round(this.speed/10 * fps) * -1
+      }
     }
 
     this.draw_moves.push({ x: this.new_position.x, y: this.new_position.y, type: this.move[0].type })

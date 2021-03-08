@@ -1,202 +1,3 @@
-class Turtle {
-  #canvas;
-  #lastRender;
-  #move;
-  #draw_moves;
-  #position;
-  #angle;
-  #line_width;
-  #speed;
-  #context;
-
-  //Add turtle picture
-  constructor(canvas) {
-    this.#lastRender = 0
-
-    this.#move = []
-    this.#draw_moves = []
-    this.#position = {x:0, y:0}
-    this.#angle = 0
-    this.#line_width = 1
-    this.#speed = 1
-
-    this.#canvas = canvas;
-    this.#context = this.#canvas.getContext("2d")
-
-    // binds
-    this.turtle = this.turtle.bind(this)
-    this.update = this.update.bind(this)
-    this.draw = this.draw.bind(this)
-    this.forward = this.forward.bind(this)
-    this.right = this.right.bind(this)
-    this.left = this.left.bind(this)
-    this.rotate = this.rotate.bind(this)
-    this.angle_in_degrees = this.angle_in_degrees.bind(this)
-
-    this.#context.translate(this.#canvas.width * 0.5, this.#canvas.height * 0.5);
-  }
-
-  run() {
-    window.requestAnimationFrame(this.turtle)
-  }
-
-  turtle(timestamp) {
-    var progress = timestamp - this.#lastRender
-
-    this.update(progress)
-    this.draw()
-
-    this.#lastRender = timestamp
-    window.requestAnimationFrame(this.turtle)
-  }
-
-  update(progress) {
-    if(this.#move) {
-      if(this.#move.length) {
-        if (this.#move[0].type === 'reposition') this.reposition_move()
-        else if (this.#move[0].type === 'move') this.simple_move(progress)
-        else if (this.#move[0].type === 'circle') this.circle_move()
-        else if (this.#move[0].type === 'rectangle') this.rectangle_move()
-        else if(this.#move[0].type === 'change_color') {
-          this.#draw_moves.push({type: this.#move[0].type, color: this.#move[0].color})
-        }
-
-        if (this.#move[0].type !== 'move' || Math.round(this.#move[0].distance) === 0) this.#move.splice(0, 1)
-      }
-    }
-  }
-
-  reposition_move() {
-    this.#draw_moves.push({ x: this.#move[0].x, y: this.#move[0].y, type: this.#move[0].type })
-    this.#position = { x: this.#move[0].x, y: this.#move[0].y }
-  }
-
-  simple_move(fps) {
-    var displacement = null;
-
-    if (Math.abs(this.#move[0].distance) < this.#speed/10 * fps) {
-      displacement = this.#move[0].distance;
-    }
-    else {
-      if(this.#move[0].distance > 0) {
-        displacement = Math.round(this.#speed/10 * fps)
-      }
-      else {
-        displacement = Math.round(this.#speed/10 * fps) * -1
-      }
-    }
-
-    this.#draw_moves.push({ x: this.#position.x, y: this.#position.y, type: this.#move[0].type })
-
-    this.#position = this.rotate(this.#move[0].angle, displacement, this.#position)
-    this.#move[0].distance -= displacement
-
-    if(this.#move[0].distance === 0) {
-      this.#draw_moves.push({ x: this.#position.x, y: this.#position.y, type: this.#move[0].type })
-    }
-  }
-
-  circle_move() {
-    this.#draw_moves.push({ x: this.#position.x, y: this.#position.y, type: this.#move[0].type, radius: this.#move[0].radius })
-  }
-
-  rectangle_move() {
-    this.#draw_moves.push({
-      x: this.#position.x,
-      y: this.#position.y,
-      width: this.#move[0].width,
-      height: this.#move[0].height,
-      type: this.#move[0].type
-    })
-  }
-
-  forward(value) {
-    this.#move.push({distance: value, angle: this.#angle, type: 'move'})
-  }
-
-  backward(value) {
-    this.forward(value*-1)
-  }
-
-  circle(radius) {
-    this.#move.push({radius: radius, type: 'circle'})
-  }
-
-  rectangle(width, height) {
-    this.#move.push({width: width, height: height, type: 'rectangle'})
-  }
-
-  right(value) {
-    this.#angle = value + this.#angle
-  }
-
-  left(value) {
-    this.#angle = 360 - value + this.#angle
-  }
-
-  set_line_color(color) {
-    this.#move.push({color: color, type: 'change_color'})
-  }
-
-  set_position(x, y) {
-    this.#move.push({x: x, y: y, type: 'reposition'})
-  }
-
-  set_line_width(value) {
-    this.#line_width = value;
-  }
-
-  speed(value) {
-    this.#speed = value
-  }
-
-  draw() {
-    this.#context.lineWidth = this.#line_width
-    if(this.#draw_moves.length) {
-      if(this.#draw_moves[0].type === 'reposition') {
-        this.#context.moveTo(this.#draw_moves[0].x, this.#draw_moves[0].y)
-      }
-      else if(this.#draw_moves[0].type === 'move') {
-        this.#context.lineTo(this.#draw_moves[0].x, this.#draw_moves[0].y)
-      }
-      else if(this.#draw_moves[0].type === 'circle') {
-        this.#context.beginPath();
-        this.#context.arc(this.#draw_moves[0].x,this.#draw_moves[0].y,this.#draw_moves[0].radius,0,2*Math.PI);
-      }
-      else if(this.#draw_moves[0].type === 'rectangle') {
-        this.#context.beginPath();
-        this.#context.rect(this.#draw_moves[0].x, this.#draw_moves[0].y, this.#draw_moves[0].width, this.#draw_moves[0].height);
-      }
-      else if(this.#draw_moves[0].type === 'change_color') {
-        this.#context.beginPath();
-        this.#context.strokeStyle = this.#draw_moves[0].color;
-      }
-      this.#context.stroke();
-
-      this.#draw_moves.splice(0, 1);
-    }
-  }
-
-  rotate(angle, distance, position) {
-    return {
-      x: position.x + distance * (Math.cos(this.angle_in_degrees(angle))),
-      y: position.y + distance * (Math.sin(this.angle_in_degrees(angle)))
-    }
-  }
-
-   angle_in_degrees(angle) {
-    return angle * Math.PI / 180
-  }
-}
-
-class Point {
-  constructor(x, y) {
-    this.x = x
-    this.y = y
-  }
-}
-
-
 class TurtleComponent extends HTMLElement {
   static get observedAttributes() {
     return [ 'width', 'height' ];
@@ -284,3 +85,144 @@ class TurtleComponent extends HTMLElement {
 }
 
 customElements.define('x-turtle', TurtleComponent);
+
+
+
+class Turtle {
+
+  constructor(canvas) {
+    this.lastRender = 0
+    // this.#speed = 1
+
+    this.position = {x:0, y:0}
+    this.angle = 0
+//     this.#line_width = 1
+    this.speed = 1
+
+
+    this.canvas = canvas;
+    this.context = this.canvas.getContext("2d")
+    this.actions = []
+
+
+    // binds
+    this.turtle = this.turtle.bind(this)
+    this.run = this.run.bind(this)
+//     this.update = this.update.bind(this)
+    this.draw = this.draw.bind(this)
+//     this.forward = this.forward.bind(this)
+//     this.simpleMove = this.simpleMove.bind(this)
+//     this.right = this.right.bind(this)
+    this.sleep = this.sleep.bind(this)
+    this.rotate = this.rotate.bind(this)
+    this.angleInDegrees = this.angleInDegrees.bind(this)
+
+    this.context.translate(this.canvas.width * 0.5, this.canvas.height * 0.5);
+  }
+
+  run() {
+    window.requestAnimationFrame(this.turtle)
+  }
+
+  turtle(timestamp) {
+    var progress = timestamp - this.lastRender
+
+    this.update(progress)
+    this.draw()
+
+    this.lastRender = timestamp
+    window.requestAnimationFrame(this.turtle)
+  }
+
+  async update(progress) {
+    if(this.actions.length) {
+      console.log(`this.${this.actions[0].action}(${this.actions[0].parameters.toString()})`)
+      await eval(`this.${this.actions[0].action}(${this.actions[0].parameters.toString()})`)
+      this.actions.splice(0, 1)
+
+      await this.sleep(progress)
+    }
+  }
+
+  move(distance){
+    // let res = this.rotate(this.angle, distance, this.position)
+
+    // this.position.x = res.x
+    // this.position.y = res.y
+    // console.log("res", res)
+    // console.log("context", this.context)
+    // // this.context.strokeStyle = 'red';
+    // // this.context.beginPath();
+    // this.context.lineTo(res.x, res.y);
+    console.log(distance)
+    distance = this.simpleMove(distance)
+
+    // if(distance !== 0) {
+      // this.move(distance, progress)
+    // }
+  }
+
+
+  async forward(distance) {
+    var displacement = null;
+    const FPS = 16.6
+
+    while(distance) {
+      if (Math.abs(distance) < this.speed/10 * FPS) {
+        displacement = distance;
+      }
+      else {
+        if(distance > 0) {
+          displacement = Math.round(this.speed/10 * FPS)
+        }
+        else {
+          displacement = Math.round(this.speed/10 * FPS) * -1
+        }
+      }
+
+      this.context.lineTo(this.position.x, this.position.y);
+      this.context.stroke();
+
+      this.position = this.rotate(this.angle, displacement, this.position)
+      this.context.lineTo(this.position.x, this.position.y);
+
+      distance -= displacement
+
+      await this.sleep(33);
+    }
+  }
+
+  async backward(value) {
+    await this.forward(value*-1)
+  }
+
+  async setLineColor(color) {
+    this.context.beginPath();
+    this.context.strokeStyle = color;
+  }
+
+  rotate(angle, distance, position) {
+    return {
+      x: position.x + distance * (Math.cos(this.angleInDegrees(angle))),
+      y: position.y + distance * (Math.sin(this.angleInDegrees(angle)))
+    }
+  }
+
+  turtleCommandsList(commands) {
+    this.actions = commands.actions
+    // commands.actions.forEach(action => eval(`this.${action.method}(${action.parameters.toString()})`))
+  }
+
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  draw() {
+    // console.log("draw")
+    this.context.stroke();
+  }
+
+  angleInDegrees(angle) {
+    return angle * Math.PI / 180
+  }
+}

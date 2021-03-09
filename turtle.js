@@ -124,10 +124,10 @@ class Turtle {
     window.requestAnimationFrame(this.turtle)
   }
 
-  turtle(timestamp) {
+  async turtle(timestamp) {
     var progress = timestamp - this.lastRender
 
-    this.update(progress)
+    await this.update(progress)
     this.draw()
 
     this.lastRender = timestamp
@@ -136,32 +136,10 @@ class Turtle {
 
   async update(progress) {
     if(this.actions.length) {
-      console.log(`this.${this.actions[0].action}(${this.actions[0].parameters.toString()})`)
       await eval(`this.${this.actions[0].action}(${this.actions[0].parameters.toString()})`)
       this.actions.splice(0, 1)
-
-      await this.sleep(progress)
     }
   }
-
-  move(distance){
-    // let res = this.rotate(this.angle, distance, this.position)
-
-    // this.position.x = res.x
-    // this.position.y = res.y
-    // console.log("res", res)
-    // console.log("context", this.context)
-    // // this.context.strokeStyle = 'red';
-    // // this.context.beginPath();
-    // this.context.lineTo(res.x, res.y);
-    console.log(distance)
-    distance = this.simpleMove(distance)
-
-    // if(distance !== 0) {
-      // this.move(distance, progress)
-    // }
-  }
-
 
   async forward(distance) {
     var displacement = null;
@@ -201,6 +179,10 @@ class Turtle {
     this.context.strokeStyle = color;
   }
 
+  async turtleCommandsList(commands) {
+    commands.actions.forEach(action => this.actions.push(action))
+  }
+
   rotate(angle, distance, position) {
     return {
       x: position.x + distance * (Math.cos(this.angleInDegrees(angle))),
@@ -208,17 +190,11 @@ class Turtle {
     }
   }
 
-  turtleCommandsList(commands) {
-    this.actions = commands.actions
-    // commands.actions.forEach(action => eval(`this.${action.method}(${action.parameters.toString()})`))
-  }
-
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   draw() {
-    // console.log("draw")
     this.context.stroke();
   }
 

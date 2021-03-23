@@ -1,4 +1,7 @@
 class TurtleComponent extends HTMLElement {
+  //TODO: Change drawCanvas TurtleCanvas or ForegroundCanvas
+  //Componente chamar os updates das tartarugas.(fazer um comando global na classe turtle)
+
   #canvas
   #drawCanvas
   #parentDiv
@@ -13,14 +16,11 @@ class TurtleComponent extends HTMLElement {
     this.#canvas = document.createElement("canvas");
     this.#drawCanvas = document.createElement("canvas");
 
+    this.turtles = [];
+
     this.#parentDiv.appendChild(this.#canvas);
     this.#parentDiv.appendChild(this.#drawCanvas);
     this.#parentDiv.style.cssText = "{position: 'relative'}";
-
-    this.turtle = {}
-
-    this.initializeCanvas = this.initializeCanvas.bind(this)
-    this.initializeTurtle = this.initializeTurtle.bind(this)
   }
 
   get width() {
@@ -59,7 +59,6 @@ class TurtleComponent extends HTMLElement {
     }
 
     this.initializeCanvas()
-    this.initializeTurtle()
   }
 
   initializeCanvas() {
@@ -72,11 +71,6 @@ class TurtleComponent extends HTMLElement {
     this.#parentDiv.style = "position: relative;"
 
     document.body.appendChild(this.#parentDiv)
-  }
-
-  initializeTurtle() {
-    this.turtle = new Turtle(this.#canvas, this.#drawCanvas);
-    this.turtle.run();
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -95,14 +89,19 @@ class TurtleComponent extends HTMLElement {
     }
   }
 
-  getContext() {
-    return this.turtle
+  getTurtle() {
+    //Passar componente ao invés dos canvas
+    var turtle = new Turtle(this.#canvas, this.#drawCanvas)
+    this.turtles.push(turtle)
+    turtle.run()
+    return turtle
   }
 }
 
 customElements.define('x-turtle', TurtleComponent);
 
 
+// Deixar mais claro o que é publico e o que é privado
 
 class Turtle {
 
@@ -128,12 +127,8 @@ class Turtle {
     this.#drawCanvasContext = this.#drawCanvas.getContext("2d")
     this.#actions = []
 
-    // binds
     this.turtle = this.turtle.bind(this)
-    this.run = this.run.bind(this)
-    this.draw = this.draw.bind(this)
-    this.sleep = this.sleep.bind(this)
-    this.rotate = this.rotate.bind(this)
+
     this.angleInDegrees = this.angleInDegrees.bind(this)
 
     this.#context.translate(this.#canvas.width * 0.5, this.#canvas.height * 0.5);
@@ -250,25 +245,30 @@ class Turtle {
     this.#position.y = y * -1
   }
 
-  rotate(angle, distance, position) {
-    return {
-      x: position.x + distance * (Math.cos(this.angleInDegrees(angle))),
-      y: position.y + distance * (Math.sin(this.angleInDegrees(angle)))
-    }
+  async getPosition() {
+    return this.#position
+  }
+
+  //Move this draw to component
+  draw() {
+    this.#context.stroke();
+
+    this.#drawCanvasContext.clearRect(-225, -300, 450, 600);
+    this.#drawCanvasContext.drawImage(this.image, this.#position.x - 15, this.#position.y - 15, 30, 30)
   }
 
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  draw() {
-    this.#context.stroke();
-
-    this.#drawCanvasContext.clearRect(0, 0, 450, 600);
-    this.#drawCanvasContext.drawImage(this.image, this.#position.x, this.#position.y, 30, 30)
-  }
-
   angleInDegrees(angle) {
     return angle * Math.PI / 180
+  }
+
+  rotate(angle, distance, position) {
+    return {
+      x: position.x + distance * (Math.cos(this.angleInDegrees(angle))),
+      y: position.y + distance * (Math.sin(this.angleInDegrees(angle)))
+    }
   }
 }

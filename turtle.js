@@ -4,7 +4,7 @@ class TurtleComponent extends HTMLElement {
   #parentDiv
 
   static get observedAttributes() {
-    return [ 'width', 'height' ];
+    return ['width', 'height'];
   }
 
   constructor() {
@@ -28,15 +28,15 @@ class TurtleComponent extends HTMLElement {
   }
 
   set width(value) {
-      this.setAttribute('width', value);
+    this.setAttribute('width', value);
   }
 
   get height() {
-      return this.getAttribute('height');
+    return this.getAttribute('height');
   }
 
   set height(value) {
-      this.setAttribute('height', value);
+    this.setAttribute('height', value);
   }
 
   get canvasStyle() {
@@ -49,13 +49,13 @@ class TurtleComponent extends HTMLElement {
 
   connectedCallback() {
     if (!this.width) {
-        this.rating = 300;
+      this.rating = 300;
     }
     if (!this.height) {
-        this.maxRating = 300;
+      this.maxRating = 300;
     }
     if (!this.canvasStyle) {
-      this.maxRating = "border: solid 1px black";
+      this.maxRating = "border: solid 1px black;";
     }
 
     this.initializeCanvas()
@@ -69,7 +69,7 @@ class TurtleComponent extends HTMLElement {
 
     this.#drawCanvas.width = this.width
     this.#drawCanvas.height = this.height
-    this.#drawCanvas.style = `$(this.canvasStyle)`
+    this.#parentDiv.style = "position: relative;"
 
     document.body.appendChild(this.#parentDiv)
   }
@@ -81,16 +81,16 @@ class TurtleComponent extends HTMLElement {
 
   attributeChangedCallback(name, oldVal, newVal) {
     if (oldVal !== newVal) {
-      switch(name) {
-          case 'width':
-              this.width = newVal;
-              break;
-          case 'height':
-              this.height = newVal;
-              break;
-          case 'canvas-style':
-            this.canvasStyle = newVal
-            break;
+      switch (name) {
+        case 'width':
+          this.width = newVal;
+          break;
+        case 'height':
+          this.height = newVal;
+          break;
+        case 'canvas-style':
+          this.canvasStyle = newVal
+          break;
       }
     }
   }
@@ -118,7 +118,7 @@ class Turtle {
 
   constructor(canvas, drawCanvas) {
     this.#lastRender = 0
-    this.#position = {x:0, y:0}
+    this.#position = { x: 0, y: 0 }
     this.#angle = 0
     this.#speed = 1
 
@@ -158,7 +158,7 @@ class Turtle {
   }
 
   async update(progress) {
-    if(this.#actions.length) {
+    if (this.#actions.length) {
       await eval(`this.${this.#actions[0].action}(${this.#actions[0].parameters.toString()})`)
       this.#actions.splice(0, 1)
     }
@@ -170,16 +170,16 @@ class Turtle {
     var displacement = null;
     const FPS = 33
 
-    while(distance) {
-      if (Math.abs(distance) < this.#speed/10 * FPS) {
+    while (distance) {
+      if (Math.abs(distance) < this.#speed / 10 * FPS) {
         displacement = distance;
       }
       else {
-        if(distance > 0) {
-          displacement = Math.round(this.#speed/10 * FPS)
+        if (distance > 0) {
+          displacement = Math.round(this.#speed / 10 * FPS)
         }
         else {
-          displacement = Math.round(this.#speed/10 * FPS) * -1
+          displacement = Math.round(this.#speed / 10 * FPS) * -1
         }
       }
 
@@ -198,7 +198,7 @@ class Turtle {
   async backward(value) {
     console.log("backward")
 
-    await this.forward(value*-1)
+    await this.forward(value * -1)
   }
 
   async setLineColor(color) {
@@ -211,7 +211,7 @@ class Turtle {
   async circle(radius) {
     console.log("circle")
     this.#context.beginPath();
-    this.#context.arc(this.#position.x, this.#position.y, radius, 0,2*Math.PI);
+    this.#context.arc(this.#position.x, this.#position.y, radius, 0, 2 * Math.PI);
   }
 
   async rectangle(width, height) {
@@ -245,9 +245,9 @@ class Turtle {
   async setPosition(x, y) {
     console.log("setPosition")
 
-    this.#context.moveTo(x, y*-1)
+    this.#context.moveTo(x, y * -1)
     this.#position.x = x
-    this.#position.y = y*-1
+    this.#position.y = y * -1
   }
 
   rotate(angle, distance, position) {
@@ -264,8 +264,8 @@ class Turtle {
   draw() {
     this.#context.stroke();
 
+    this.#drawCanvasContext.clearRect(0, 0, 450, 600);
     this.#drawCanvasContext.drawImage(this.image, this.#position.x, this.#position.y, 30, 30)
-    this.#drawCanvasContext.clearRect(-1000, -1000, 1000, 1000);
   }
 
   angleInDegrees(angle) {

@@ -1,11 +1,22 @@
 class TurtleComponent extends HTMLElement {
+  #canvas
+  #drawCanvas
+  #parentDiv
+
   static get observedAttributes() {
     return [ 'width', 'height' ];
   }
 
   constructor() {
     super()
-    this.canvas = document.createElement("canvas");
+    this.#parentDiv = document.createElement("div")
+    this.#canvas = document.createElement("canvas");
+    this.#drawCanvas = document.createElement("canvas");
+
+    this.#parentDiv.appendChild(this.#canvas);
+    this.#parentDiv.appendChild(this.#drawCanvas);
+    this.#parentDiv.style.cssText = "{position: 'relative'}";
+
     this.turtle = {}
 
     this.initializeCanvas = this.initializeCanvas.bind(this)
@@ -52,14 +63,19 @@ class TurtleComponent extends HTMLElement {
   }
 
   initializeCanvas() {
-    this.canvas.width = this.width
-    this.canvas.height = this.height
-    this.canvas.style = this.canvasStyle
-    document.body.appendChild(this.canvas)
+    this.#canvas.width = this.width
+    this.#canvas.height = this.height
+    this.#canvas.style = this.canvasStyle
+
+    this.#drawCanvas.width = this.width
+    this.#drawCanvas.height = this.height
+    this.#drawCanvas.style = `$(this.canvasStyle)`
+
+    document.body.appendChild(this.#parentDiv)
   }
 
   initializeTurtle() {
-    this.turtle = new Turtle(this.canvas);
+    this.turtle = new Turtle(this.#canvas, this.#drawCanvas);
     this.turtle.run();
   }
 
@@ -90,34 +106,41 @@ customElements.define('x-turtle', TurtleComponent);
 
 class Turtle {
 
-  constructor(canvas) {
-    this.lastRender = 0
-    // this.#speed = 1
+  #lastRender
+  #position
+  #angle
+  #speed
+  #canvas
+  #context
+  #actions
+  #drawCanvas
+  #drawCanvasContext
 
-    this.position = {x:0, y:0}
-    this.angle = 0
-//     this.#line_width = 1
-    this.speed = 1
+  constructor(canvas, drawCanvas) {
+    this.#lastRender = 0
+    this.#position = {x:0, y:0}
+    this.#angle = 0
+    this.#speed = 1
 
-
-    this.canvas = canvas;
-    this.context = this.canvas.getContext("2d")
-    this.actions = []
-
+    this.#canvas = canvas;
+    this.#drawCanvas = drawCanvas;
+    this.#context = this.#canvas.getContext("2d")
+    this.#drawCanvasContext = this.#drawCanvas.getContext("2d")
+    this.#actions = []
 
     // binds
     this.turtle = this.turtle.bind(this)
     this.run = this.run.bind(this)
-//     this.update = this.update.bind(this)
     this.draw = this.draw.bind(this)
-//     this.forward = this.forward.bind(this)
-//     this.simpleMove = this.simpleMove.bind(this)
-//     this.right = this.right.bind(this)
     this.sleep = this.sleep.bind(this)
     this.rotate = this.rotate.bind(this)
     this.angleInDegrees = this.angleInDegrees.bind(this)
 
-    this.context.translate(this.canvas.width * 0.5, this.canvas.height * 0.5);
+    this.#context.translate(this.#canvas.width * 0.5, this.#canvas.height * 0.5);
+    this.#drawCanvasContext.translate(this.#drawCanvas.width * 0.5, this.#drawCanvas.height * 0.5);
+
+    this.image = new Image();
+    this.image.src = 'turtle.jpg';
   }
 
   run() {
@@ -125,62 +148,106 @@ class Turtle {
   }
 
   async turtle(timestamp) {
-    var progress = timestamp - this.lastRender
+    var progress = timestamp - this.#lastRender
 
     await this.update(progress)
     this.draw()
 
-    this.lastRender = timestamp
+    this.#lastRender = timestamp
     window.requestAnimationFrame(this.turtle)
   }
 
   async update(progress) {
-    if(this.actions.length) {
-      await eval(`this.${this.actions[0].action}(${this.actions[0].parameters.toString()})`)
-      this.actions.splice(0, 1)
+    if(this.#actions.length) {
+      await eval(`this.${this.#actions[0].action}(${this.#actions[0].parameters.toString()})`)
+      this.#actions.splice(0, 1)
     }
   }
 
   async forward(distance) {
+    console.log("forward")
+
     var displacement = null;
-    const FPS = 16.6
+    const FPS = 33
 
     while(distance) {
-      if (Math.abs(distance) < this.speed/10 * FPS) {
+      if (Math.abs(distance) < this.#speed/10 * FPS) {
         displacement = distance;
       }
       else {
         if(distance > 0) {
-          displacement = Math.round(this.speed/10 * FPS)
+          displacement = Math.round(this.#speed/10 * FPS)
         }
         else {
-          displacement = Math.round(this.speed/10 * FPS) * -1
+          displacement = Math.round(this.#speed/10 * FPS) * -1
         }
       }
 
-      this.context.lineTo(this.position.x, this.position.y);
-      this.context.stroke();
+      this.#context.lineTo(this.#position.x, this.#position.y);
+      this.#context.stroke();
 
-      this.position = this.rotate(this.angle, displacement, this.position)
-      this.context.lineTo(this.position.x, this.position.y);
+      this.#position = this.rotate(this.#angle, displacement, this.#position)
+      this.#context.lineTo(this.#position.x, this.#position.y);
 
       distance -= displacement
 
-      await this.sleep(33);
+      await this.sleep(FPS);
     }
   }
 
   async backward(value) {
+    console.log("backward")
+
     await this.forward(value*-1)
   }
 
   async setLineColor(color) {
-    this.context.beginPath();
-    this.context.strokeStyle = color;
+    console.log("setColor")
+
+    this.#context.beginPath();
+    this.#context.strokeStyle = color;
+  }
+
+  async circle(radius) {
+    console.log("circle")
+    this.#context.beginPath();
+    this.#context.arc(this.#position.x, this.#position.y, radius, 0,2*Math.PI);
+  }
+
+  async rectangle(width, height) {
+    console.log("reactangle")
+
+    this.#context.rect(this.#position.x, this.#position.y, width, height);
+  }
+
+  async speed(speed) {
+    console.log("speed")
+
+    this.#speed = speed
   }
 
   async turtleCommandsList(commands) {
-    commands.actions.forEach(action => this.actions.push(action))
+    commands.actions.forEach(action => this.#actions.push(action))
+  }
+
+  async right(value) {
+    console.log("right")
+
+    this.#angle = value + this.#angle
+  }
+
+  async left(value) {
+    console.log("left")
+
+    this.#angle = 360 - value + this.#angle
+  }
+
+  async setPosition(x, y) {
+    console.log("setPosition")
+
+    this.#context.moveTo(x, y*-1)
+    this.#position.x = x
+    this.#position.y = y*-1
   }
 
   rotate(angle, distance, position) {
@@ -195,7 +262,10 @@ class Turtle {
   }
 
   draw() {
-    this.context.stroke();
+    this.#context.stroke();
+
+    this.#drawCanvasContext.drawImage(this.image, this.#position.x, this.#position.y, 30, 30)
+    this.#drawCanvasContext.clearRect(-1000, -1000, 1000, 1000);
   }
 
   angleInDegrees(angle) {

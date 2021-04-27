@@ -1,0 +1,9 @@
+{
+  "name": "turtle-component",
+  "version": "0.1.0",
+  "description": "Component to render a turtle canvas in web applications",
+  "main": "index.js",
+  "repository": "https://github.com/ThalissonMelo/turtle",
+  "author": "Guilherme Silva <guilherme.francais@gmail.com> e Thalisson Melo <tallisonmelo@hotmail.com>",
+  "license": "MIT"
+}

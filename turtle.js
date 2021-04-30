@@ -1,10 +1,12 @@
 class TurtleComponent extends HTMLElement {
-  //TODO: Change drawCanvas TurtleCanvas or ForegroundCanvas
   //Componente chamar os updates das tartarugas.(fazer um comando global na classe turtle)
 
-  #canvas
-  #drawCanvas
+  #backgroundCanvas
+  #foregroundCanvas
+  #backgroundCanvasContex
+  #foregroundCanvasContex
   #parentDiv
+  #image
 
   static get observedAttributes() {
     return ['width', 'height'];
@@ -13,14 +15,20 @@ class TurtleComponent extends HTMLElement {
   constructor() {
     super()
     this.#parentDiv = document.createElement("div")
-    this.#canvas = document.createElement("canvas");
-    this.#drawCanvas = document.createElement("canvas");
+    this.#backgroundCanvas = document.createElement("canvas");
+    this.#foregroundCanvas = document.createElement("canvas");
 
     this.turtles = [];
 
-    this.#parentDiv.appendChild(this.#canvas);
-    this.#parentDiv.appendChild(this.#drawCanvas);
+    this.#parentDiv.appendChild(this.#backgroundCanvas);
+    this.#parentDiv.appendChild(this.#foregroundCanvas);
     this.#parentDiv.style.cssText = "{position: 'relative'}";
+
+    this.#backgroundCanvasContex = this.#backgroundCanvas.getContext("2d")
+    this.#foregroundCanvasContex = this.#foregroundCanvas.getContext("2d")
+
+    this.#image = new Image();
+    this.#image.src = 'turtle.jpg';
   }
 
   get width() {
@@ -62,13 +70,18 @@ class TurtleComponent extends HTMLElement {
   }
 
   initializeCanvas() {
-    this.#canvas.width = this.width
-    this.#canvas.height = this.height
-    this.#canvas.style = this.canvasStyle
+    this.#backgroundCanvas.width = this.width
+    this.#backgroundCanvas.height = this.height
+    this.#backgroundCanvas.style = this.canvasStyle
 
-    this.#drawCanvas.width = this.width
-    this.#drawCanvas.height = this.height
+    this.#foregroundCanvas.width = this.width
+    this.#foregroundCanvas.height = this.height
     this.#parentDiv.style = "position: relative;"
+
+    this.#backgroundCanvasContex.translate(this.#backgroundCanvas.width * 0.5, this.#backgroundCanvas.height * 0.5);
+    this.#foregroundCanvasContex.translate(this.#foregroundCanvas.width * 0.5, this.#foregroundCanvas.height * 0.5);
+
+    this.#foregroundCanvasContex.drawImage(this.#image, - 15, - 15, 40, 40)
 
     document.body.appendChild(this.#parentDiv)
   }
@@ -89,11 +102,18 @@ class TurtleComponent extends HTMLElement {
     }
   }
 
+  async update(turtle){
+    while(true) {
+      await turtle.init()
+      // await sleep(33)
+    }
+  }
+
   getTurtle() {
-    //Passar componente ao invés dos canvas
-    var turtle = new Turtle(this.#canvas, this.#drawCanvas)
+    var turtle = new Turtle(this.#backgroundCanvasContex, this.#foregroundCanvasContex, this.#image)
     this.turtles.push(turtle)
-    turtle.run()
+    // turtle.run()
+    this.update(turtle)
     return turtle
   }
 }
@@ -102,65 +122,92 @@ customElements.define('x-turtle', TurtleComponent);
 
 
 // Deixar mais claro o que é publico e o que é privado
+// Remover a quantidade grande de variáveis
 
 class Turtle {
 
-  #lastRender
+  // #lastRender
   #position
   #angle
   #speed
-  #canvas
-  #context
   #actions
-  #drawCanvas
-  #drawCanvasContext
 
-  constructor(canvas, drawCanvas) {
-    this.#lastRender = 0
+  #backgroundCanvas
+  #foregroundCanvas
+
+  // Para fazer mais uma turtle:
+      // Checar a troca de contexto
+
+  constructor(backgroundCanvas, foregroundCanvas, image) {
+    // this.#lastRender = 0
     this.#position = { x: 0, y: 0 }
     this.#angle = 0
     this.#speed = 1
 
-    this.#canvas = canvas;
-    this.#drawCanvas = drawCanvas;
-    this.#context = this.#canvas.getContext("2d")
-    this.#drawCanvasContext = this.#drawCanvas.getContext("2d")
+    // this.#canvas = canvas;
+    // this.#drawCanvas = drawCanvas;
+    this.#backgroundCanvas = backgroundCanvas;
+    this.#foregroundCanvas = foregroundCanvas;
+    // this.#backgroundCanvas = this.#canvas.getContext("2d")
+    // this.#foregroundCanvas = this.#drawCanvas.getContext("2d")
     this.#actions = []
 
-    this.turtle = this.turtle.bind(this)
+    this.init = this.init.bind(this)
 
+    //Remove from class
     this.angleInDegrees = this.angleInDegrees.bind(this)
 
-    this.#context.translate(this.#canvas.width * 0.5, this.#canvas.height * 0.5);
-    this.#drawCanvasContext.translate(this.#drawCanvas.width * 0.5, this.#drawCanvas.height * 0.5);
+    // this.#backgroundCanvas.translate(this.#canvas.width * 0.5, this.#canvas.height * 0.5);
+    // this.#foregroundCanvas.translate(this.#drawCanvas.width * 0.5, this.#drawCanvas.height * 0.5);
 
-    this.image = new Image();
-    this.image.src = 'turtle.jpg';
+    this.image = image
   }
 
-  run() {
-    window.requestAnimationFrame(this.turtle)
-  }
+  // run() {
+  //   window.requestAnimationFrame(this.turtle)
+  // }
 
-  async turtle(timestamp) {
-    var progress = timestamp - this.#lastRender
+  async init() {
+  //   var progress = timestamp - this.#lastRender
+    const FPS = 33
 
-    await this.update(progress)
-    this.draw()
+    var delayUpdate = await this.update()
+    var delayDraw =  await this.draw()
 
-    this.#lastRender = timestamp
-    window.requestAnimationFrame(this.turtle)
-  }
+    let delayTotal = (FPS - ((delayUpdate + delayDraw)*1000))
 
-  async update(progress) {
-    if (this.#actions.length) {
-      await eval(`this.${this.#actions[0].action}(${this.#actions[0].parameters.toString()})`)
-      this.#actions.splice(0, 1)
+    if(delayTotal > 0) {
+      await sleep(FPS - delayTotal)
     }
+
+    // this.#lastRender = timestamp
+    // window.requestAnimationFrame(this.turtle)
   }
 
-  async forward(distance) {
-    console.log("forward")
+  async update() {
+    var t0 = performance.now()
+    if (this.#actions.length) {
+      // console.log(this[this.#actions[0].action](this.#actions[0].parameters.toString()))
+      await this[this.#actions[0].action](this.#actions[0].parameters.toString())//.finally(() => {
+      this.#actions.splice(0, 1)
+      //});
+    }
+    // await sleep(33)
+    var t1 = performance.now()
+    return t1 - t0
+  }
+
+  forward(distance) {
+    this.#actions.push({action: 'forwardAction', parameters: [distance]})
+    // `this.${this.#actions[0].action}(${this.#actions[0].parameters.toString()})`
+  }
+
+  //Check a way to add actions to a list and run all the time one by one
+  async forwardAction(distance) {
+    // console.log("------")
+    // console.log("forward")
+    // console.log("------")
+
 
     var displacement = null;
     const FPS = 33
@@ -178,87 +225,114 @@ class Turtle {
         }
       }
 
-      this.#context.lineTo(this.#position.x, this.#position.y);
-      this.#context.stroke();
+      //Check if context has the position
+      this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
 
       this.#position = this.rotate(this.#angle, displacement, this.#position)
-      this.#context.lineTo(this.#position.x, this.#position.y);
+      this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
+
+      this.#backgroundCanvas.stroke();
 
       distance -= displacement
 
-      await this.sleep(FPS);
+      await sleep(FPS);
     }
+
+    return 'forward'
   }
 
-  async backward(value) {
+  backward(value) {
+    this.#actions.push({action: 'backwardAction', parameters: [value]})
+  }
+
+  async backwardAction(value) {
     console.log("backward")
 
     await this.forward(value * -1)
   }
 
-  async setLineColor(color) {
-    console.log("setColor")
-
-    this.#context.beginPath();
-    this.#context.strokeStyle = color;
+  setLineColor(color) {
+    this.#actions.push({action: 'setLineColorAction', parameters: [color]})
   }
 
-  async circle(radius) {
-    console.log("circle")
-    this.#context.beginPath();
-    this.#context.arc(this.#position.x, this.#position.y, radius, 0, 2 * Math.PI);
+  async setLineColorAction(color) {
+    this.#backgroundCanvas.beginPath();
+    this.#backgroundCanvas.strokeStyle = color;
   }
 
-  async rectangle(width, height) {
-    console.log("reactangle")
-
-    this.#context.rect(this.#position.x, this.#position.y, width, height);
+  circle(radius) {
+    this.#actions.push({action: 'circleAction', parameters: [radius]})
   }
 
-  async speed(speed) {
-    console.log("speed")
+  async circleAction(radius) {
+    this.#backgroundCanvas.beginPath();
+    this.#backgroundCanvas.arc(this.#position.x, this.#position.y, radius, 0, 2 * Math.PI);
+  }
 
+  rectangle(width, height) {
+    this.#actions.push({action: 'rectangleAction', parameters: [width, height]})
+  }
+
+  async rectangleAction(width, height) {
+    this.#backgroundCanvas.rect(this.#position.x, this.#position.y, width, height);
+  }
+
+  speed(speed) {
+    this.#actions.push({action: 'speedAction', parameters: [speed]})
+  }
+
+  async speedAction(speed) {
     this.#speed = speed
   }
 
-  async turtleCommandsList(commands) {
+  /*
+    There is a limitation here, you can't call this methods together with anothers in a
+    roll cause this one is synchronous ans all the other not.
+  */
+  turtleCommandsList(commands) {
     commands.actions.forEach(action => this.#actions.push(action))
   }
 
-  async right(value) {
-    console.log("right")
+  right(value) {
+    this.#actions.push({action: 'rightAction', parameters: [value]})
+  }
 
+  async rightAction(value) {
     this.#angle = value + this.#angle
   }
 
-  async left(value) {
-    console.log("left")
+  left(value) {
+    this.#actions.push({action: 'leftAction', parameters: [value]})
+  }
 
+  async leftAction(value) {
     this.#angle = 360 - value + this.#angle
   }
 
-  async setPosition(x, y) {
-    console.log("setPosition")
+  setPosition(x, y) {
+    this.#actions.push({action: 'setPositionAction', parameters: [x, y]})
+  }
 
-    this.#context.moveTo(x, y * -1)
+  async setPositionAction(x, y) {
+    this.#backgroundCanvas.moveTo(x, y * -1)
     this.#position.x = x
     this.#position.y = y * -1
   }
 
-  async getPosition() {
+  getPosition() {
     return this.#position
   }
 
   //Move this draw to component
-  draw() {
-    this.#context.stroke();
+  async draw() {
+    var t0 = performance.now()
+    this.#backgroundCanvas.stroke();
 
-    this.#drawCanvasContext.clearRect(-225, -300, 450, 600);
-    this.#drawCanvasContext.drawImage(this.image, this.#position.x - 15, this.#position.y - 15, 30, 30)
-  }
+    this.#foregroundCanvas.clearRect(-225, -300, 450, 600);
+    // this.#foregroundCanvas.drawImage(this.image, this.#position.x - 15, this.#position.y - 15, 30, 30)
+    var t1 = performance.now()
 
-  sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return t1 - t0
   }
 
   angleInDegrees(angle) {
@@ -271,4 +345,18 @@ class Turtle {
       y: position.y + distance * (Math.sin(this.angleInDegrees(angle)))
     }
   }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function executeFunctionByName(functionName, context /*, args */) {
+  var args = Array.prototype.slice.call(arguments, 2);
+  var namespaces = functionName.split(".");
+  var func = namespaces.pop();
+  // for(var i = 0; i < namespaces.length; i++) {
+  //   context = context[namespaces[i]];
+  // }
+  return context[func].apply(context, args);
 }

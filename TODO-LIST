@@ -1,0 +1,16 @@
+1 - Fazer o componente chamar o update das tartaturas criando um método run global
+q inicia o loop.
+
+2 - Deixar mais claro o que é publico e o que é privado
+
+3 - Criar dois métodos para cada ação, um que adiciona na lista e outro q chama a ação.
+
+4 - Remover a quantidade grande de variáveis
+
+5 - Resolver problema da imagem ao adicionar mais de uma turtle
+
+6 - Remover eval no update
+
+7 - Tentar usar a posição do contexto
+
+8 - Fazer o draw da turtle no componente

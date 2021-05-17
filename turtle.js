@@ -155,7 +155,6 @@ class Turtle {
     this.init = this.init.bind(this)
 
     //Remove from class
-    this.angleInDegrees = this.angleInDegrees.bind(this)
 
     // this.#backgroundCanvas.translate(this.#canvas.width * 0.5, this.#canvas.height * 0.5);
     // this.#foregroundCanvas.translate(this.#drawCanvas.width * 0.5, this.#drawCanvas.height * 0.5);
@@ -187,12 +186,11 @@ class Turtle {
   async update() {
     var t0 = performance.now()
     if (this.#actions.length) {
-      // console.log(this[this.#actions[0].action](this.#actions[0].parameters.toString()))
-      await this[this.#actions[0].action](this.#actions[0].parameters.toString())//.finally(() => {
-      this.#actions.splice(0, 1)
-      //});
+      console.log("parameters: ", `${this.#actions[0].parameters.toString()}`, "func", `${this.#actions[0].action}`)
+      await this[this.#actions[0].action](...this.#actions[0].parameters).finally(() => {
+        this.#actions.splice(0, 1)
+      });
     }
-    // await sleep(33)
     var t1 = performance.now()
     return t1 - t0
   }
@@ -208,6 +206,9 @@ class Turtle {
     // console.log("forward")
     // console.log("------")
 
+    distance = parseInt(distance)
+
+    console.log("forward", distance)
 
     var displacement = null;
     const FPS = 33
@@ -227,9 +228,9 @@ class Turtle {
 
       //Check if context has the position
       this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
-
-      this.#position = this.rotate(this.#angle, displacement, this.#position)
+      this.#position = postionWithAngle(this.#angle, displacement, this.#position)
       this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
+      console.log('forward while in')
 
       this.#backgroundCanvas.stroke();
 
@@ -237,8 +238,6 @@ class Turtle {
 
       await sleep(FPS);
     }
-
-    return 'forward'
   }
 
   backward(value) {
@@ -298,7 +297,7 @@ class Turtle {
   }
 
   async rightAction(value) {
-    this.#angle = value + this.#angle
+    this.#angle += parseInt(value)
   }
 
   left(value) {
@@ -306,7 +305,7 @@ class Turtle {
   }
 
   async leftAction(value) {
-    this.#angle = 360 - value + this.#angle
+    this.#angle = 360 - parseInt(value) + this.#angle
   }
 
   setPosition(x, y) {
@@ -314,14 +313,25 @@ class Turtle {
   }
 
   async setPositionAction(x, y) {
-    this.#backgroundCanvas.moveTo(x, y * -1)
-    this.#position.x = x
-    this.#position.y = y * -1
+    var newY = parseInt(y)
+    var newX = parseInt(x)
+
+    console.log(newX, newY, x, y)
+
+    // this.#backgroundCanvas.beginPath();
+    this.#backgroundCanvas.moveTo(newX, newY)
+    // this.#backgroundCanvas.stroke();
+    this.#position.x = newX
+    this.#position.y = newY
   }
 
-  getPosition() {
-    return this.#position
-  }
+  // getPosition() {
+  //   //
+  // }
+
+  // getPositionAction() {
+  //   return this.#position
+  // }
 
   //Move this draw to component
   async draw() {
@@ -334,29 +344,19 @@ class Turtle {
 
     return t1 - t0
   }
-
-  angleInDegrees(angle) {
-    return angle * Math.PI / 180
-  }
-
-  rotate(angle, distance, position) {
-    return {
-      x: position.x + distance * (Math.cos(this.angleInDegrees(angle))),
-      y: position.y + distance * (Math.sin(this.angleInDegrees(angle)))
-    }
-  }
 }
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function executeFunctionByName(functionName, context /*, args */) {
-  var args = Array.prototype.slice.call(arguments, 2);
-  var namespaces = functionName.split(".");
-  var func = namespaces.pop();
-  // for(var i = 0; i < namespaces.length; i++) {
-  //   context = context[namespaces[i]];
-  // }
-  return context[func].apply(context, args);
+function angleInDegrees(angle) {
+  return angle * Math.PI / 180
+}
+
+function postionWithAngle(angle, distance, position) {
+  return {
+    x: position.x + distance * (Math.cos(angleInDegrees(angle))),
+    y: position.y + distance * (Math.sin(angleInDegrees(angle)))
+  }
 }

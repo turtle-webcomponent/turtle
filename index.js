@@ -3,7 +3,7 @@ class TurtleComponent extends HTMLElement {
 
   #backgroundCanvas
   #foregroundCanvas
-  #backgroundCanvasContex
+  #backgroundCanvasContext
   #foregroundCanvasContex
   #parentDiv
   #image
@@ -16,16 +16,16 @@ class TurtleComponent extends HTMLElement {
     super()
     this.#parentDiv = document.createElement("div")
     this.#backgroundCanvas = document.createElement("canvas");
-    this.#foregroundCanvas = document.createElement("canvas");
+    // this.#foregroundCanvas = document.createElement("canvas");
 
     this.turtles = [];
 
     this.#parentDiv.appendChild(this.#backgroundCanvas);
-    this.#parentDiv.appendChild(this.#foregroundCanvas);
-    this.#parentDiv.style.cssText = "{position: 'relative'}";
+    // this.#parentDiv.appendChild(this.#foregroundCanvas);
+    // this.#parentDiv.style.cssText = "{position: 'relative'}";
 
-    this.#backgroundCanvasContex = this.#backgroundCanvas.getContext("2d")
-    this.#foregroundCanvasContex = this.#foregroundCanvas.getContext("2d")
+    this.#backgroundCanvasContext = this.#backgroundCanvas.getContext("2d")
+    // this.#foregroundCanvasContex = this.#foregroundCanvas.getContext("2d")
 
     this.#image = new Image();
     this.#image.src = 'turtle.png';
@@ -76,15 +76,15 @@ class TurtleComponent extends HTMLElement {
     this.#backgroundCanvas.height = this.height
     this.#backgroundCanvas.style = this.canvasStyle
 
-    this.#foregroundCanvas.width = this.width
-    this.#foregroundCanvas.height = this.height
+    // this.#foregroundCanvas.width = this.width
+    // this.#foregroundCanvas.height = this.height
     this.#parentDiv.style = "position: relative;"
 
-    this.#backgroundCanvasContex.translate(this.#backgroundCanvas.width * 0.5, this.#backgroundCanvas.height * 0.5);
-    this.#foregroundCanvasContex.translate(this.#foregroundCanvas.width * 0.5, this.#foregroundCanvas.height * 0.5);
+    this.#backgroundCanvasContext.translate(this.#backgroundCanvas.width * 0.5, this.#backgroundCanvas.height * 0.5);
+    // this.#foregroundCanvasContex.translate(this.#foregroundCanvas.width * 0.5, this.#foregroundCanvas.height * 0.5);
 
-    this.#foregroundCanvasContex.drawImage(this.#image, - 15, - 15, 40, 40)
-    this.#foregroundCanvasContex.drawImage(this.image2, - 15, - 15, 40, 40)
+    // this.#foregroundCanvasContex.drawImage(this.#image, - 15, - 15, 40, 40)
+    // this.#foregroundCanvasContex.drawImage(this.image2, - 15, - 15, 40, 40)
 
     document.body.appendChild(this.#parentDiv)
   }
@@ -107,15 +107,36 @@ class TurtleComponent extends HTMLElement {
 
   async update(turtle){
     while(true) {
-      await turtle.init()
+      await turtle.init();
     }
   }
 
   getTurtle() {
-    var turtle = new Turtle(this.#backgroundCanvasContex, this.#foregroundCanvasContex, this.#image, this.image2, this.width, this.height)
+    // var turtle = new Turtle(this.#backgroundCanvasContext, this.#foregroundCanvasContex, this.#image, this.image2, this.width, this.height)
+    // this.turtles.push(turtle)
+    // // turtle.run()
+    // this.update(turtle)
+    // return turtle
+
+    console.log(this.width, this.height)
+
+    let foregroundCanvas = document.createElement("canvas");
+    foregroundCanvas.style = "position: absolute;"
+    this.#parentDiv.appendChild(foregroundCanvas);
+    console.log("new canvas")
+    console.log(foregroundCanvas)
+    let foregroundCanvasContext = foregroundCanvas.getContext("2d")
+
+    foregroundCanvas.width = this.width
+    foregroundCanvas.height = this.height
+
+    foregroundCanvasContext.translate(foregroundCanvas.width * 0.5, foregroundCanvas.height * 0.5);
+
+    var turtle = new Turtle(this.#backgroundCanvasContext, foregroundCanvasContext,this.#image, this.image2, this.width, this.height)
     this.turtles.push(turtle)
-    // turtle.run()
+
     this.update(turtle)
+
     return turtle
   }
 }
@@ -159,6 +180,8 @@ class Turtle {
     // this.#foregroundCanvas = this.#drawCanvas.getContext("2d")
     this.#actions = []
 
+    console.log(backgroundCanvas)
+
     this.init = this.init.bind(this)
 
     //Remove from class
@@ -175,19 +198,22 @@ class Turtle {
 
   async init() {
   //   var progress = timestamp - this.#lastRender
-    const FPS = 33
+    // while(true) {
 
-    var delayUpdate = await this.update()
-    var delayDraw =  await this.draw()
+      const FPS = 33
 
-    let delayTotal = (FPS - ((delayUpdate + delayDraw)*1000))
+      var delayUpdate = await this.update()
+      var delayDraw =  await this.draw()
 
-    if(delayTotal > 0) {
-      await sleep(FPS - delayTotal)
-    }
+      let delayTotal = (FPS - ((delayUpdate + delayDraw)*1000))
 
-    // this.#lastRender = timestamp
-    // window.requestAnimationFrame(this.turtle)
+      if(delayTotal > 0) {
+        await sleep(FPS - delayTotal)
+      }
+
+      // this.#lastRender = timestamp
+      // window.requestAnimationFrame(this.turtle)
+    // }
   }
 
   async update() {
@@ -422,7 +448,7 @@ class Sprite {
     let column = this.currentFrame % this.columns;
     let row = Math.floor(this.currentFrame / this.columns);
 
-    console.log(this.frameWidth, this.frameHeight)
+    // console.log(this.frameWidth, this.frameHeight)
     // Clear and draw
     this.canvas.clearRect(0, 0, this.canvas.width*-1, this.canvas.height);
     this.canvas.drawImage(

@@ -23,7 +23,7 @@ class TurtleComponent extends HTMLElement {
     this.#image = new Image();
     this.#image.src = 'turtle.png';
     this.image2 = new Image();
-    this.image2.src = 'ide_turtle.png';
+    this.image2.src = 'idle_turtle.png';
   }
 
   get width() {
@@ -324,7 +324,6 @@ class Turtle {
     var t0 = performance.now()
     this.#backgroundCanvas.stroke();
 
-    console.log(-Number.MAX_SAFE_INTEGER)
     this.#foregroundCanvas.clearRect(
       this.spritePosition.x - this.width,
       this.spritePosition.y - this.height,
@@ -384,7 +383,6 @@ class Sprite {
     let column = this.currentFrame % this.columns;
     let row = Math.floor(this.currentFrame / this.columns);
 
-    this.canvas.clearRect(0, 0,this.canvas.width*-1, this.canvas.height);
     this.canvas.drawImage(
       this.sprite,
       column * this.frameWidth,

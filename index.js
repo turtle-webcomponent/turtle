@@ -1,10 +1,7 @@
 class TurtleComponent extends HTMLElement {
-  //Componente chamar os updates das tartarugas.(fazer um comando global na classe turtle)
 
   #backgroundCanvas
-  #foregroundCanvas
   #backgroundCanvasContext
-  #foregroundCanvasContex
   #parentDiv
   #image
 
@@ -16,16 +13,12 @@ class TurtleComponent extends HTMLElement {
     super()
     this.#parentDiv = document.createElement("div")
     this.#backgroundCanvas = document.createElement("canvas");
-    // this.#foregroundCanvas = document.createElement("canvas");
 
     this.turtles = [];
 
     this.#parentDiv.appendChild(this.#backgroundCanvas);
-    // this.#parentDiv.appendChild(this.#foregroundCanvas);
-    // this.#parentDiv.style.cssText = "{position: 'relative'}";
 
     this.#backgroundCanvasContext = this.#backgroundCanvas.getContext("2d")
-    // this.#foregroundCanvasContex = this.#foregroundCanvas.getContext("2d")
 
     this.#image = new Image();
     this.#image.src = 'turtle.png';
@@ -76,15 +69,9 @@ class TurtleComponent extends HTMLElement {
     this.#backgroundCanvas.height = this.height
     this.#backgroundCanvas.style = this.canvasStyle
 
-    // this.#foregroundCanvas.width = this.width
-    // this.#foregroundCanvas.height = this.height
     this.#parentDiv.style = "position: relative;"
 
     this.#backgroundCanvasContext.translate(this.#backgroundCanvas.width * 0.5, this.#backgroundCanvas.height * 0.5);
-    // this.#foregroundCanvasContex.translate(this.#foregroundCanvas.width * 0.5, this.#foregroundCanvas.height * 0.5);
-
-    // this.#foregroundCanvasContex.drawImage(this.#image, - 15, - 15, 40, 40)
-    // this.#foregroundCanvasContex.drawImage(this.image2, - 15, - 15, 40, 40)
 
     document.body.appendChild(this.#parentDiv)
   }
@@ -112,12 +99,6 @@ class TurtleComponent extends HTMLElement {
   }
 
   getTurtle() {
-    // var turtle = new Turtle(this.#backgroundCanvasContext, this.#foregroundCanvasContex, this.#image, this.image2, this.width, this.height)
-    // this.turtles.push(turtle)
-    // // turtle.run()
-    // this.update(turtle)
-    // return turtle
-
     console.log(this.width, this.height)
 
     let foregroundCanvas = document.createElement("canvas");
@@ -130,7 +111,7 @@ class TurtleComponent extends HTMLElement {
     foregroundCanvas.width = this.width
     foregroundCanvas.height = this.height
 
-    foregroundCanvasContext.translate(foregroundCanvas.width * 0.5, foregroundCanvas.height * 0.5);
+    foregroundCanvasContext.translate(foregroundCanvas.width * 0.5 - 50, foregroundCanvas.height * 0.5 - 50);
 
     var turtle = new Turtle(this.#backgroundCanvasContext, foregroundCanvasContext,this.#image, this.image2, this.width, this.height)
     this.turtles.push(turtle)
@@ -143,13 +124,9 @@ class TurtleComponent extends HTMLElement {
 
 customElements.define('x-turtle', TurtleComponent);
 
-
-// Deixar mais claro o que é publico e o que é privado
-// Remover a quantidade grande de variáveis
+const BIGGER_POSITION = 2*(10**8)
 
 class Turtle {
-
-  // #lastRender
   #position
   #angle
   #speed
@@ -158,62 +135,37 @@ class Turtle {
   #backgroundCanvas
   #foregroundCanvas
 
-  // Para fazer mais uma turtle:
-      // Checar a troca de contexto
-
   constructor(backgroundCanvas, foregroundCanvas, image, image2, width, height) {
-    // this.#lastRender = 0
     this.#position = { x: 0, y: 0 }
+    this.spritePosition = { x: 0, y: 0}
     this.#angle = 0
     this.#speed = 1
     this.moving = false;
     this.width = width;
     this.height = height;
 
-    // this.#canvas = canvas;
-    // this.#drawCanvas = drawCanvas;
     this.#backgroundCanvas = backgroundCanvas;
     this.#foregroundCanvas = foregroundCanvas;
-    this.sprite = new Sprite(1, 8, image, foregroundCanvas)
-    this.sprite2 = new Sprite(1, 10, image2, foregroundCanvas)
-    // this.#backgroundCanvas = this.#canvas.getContext("2d")
-    // this.#foregroundCanvas = this.#drawCanvas.getContext("2d")
+    this.sprite = new Sprite(1, 8, image, foregroundCanvas, true)
+    this.sprite2 = new Sprite(1, 10, image2, foregroundCanvas, false)
     this.#actions = []
 
     console.log(backgroundCanvas)
 
     this.init = this.init.bind(this)
-
-    //Remove from class
-
-    // this.#backgroundCanvas.translate(this.#canvas.width * 0.5, this.#canvas.height * 0.5);
-    // this.#foregroundCanvas.translate(this.#drawCanvas.width * 0.5, this.#drawCanvas.height * 0.5);
-
-    // this.image = image
   }
 
-  // run() {
-  //   window.requestAnimationFrame(this.turtle)
-  // }
-
   async init() {
-  //   var progress = timestamp - this.#lastRender
-    // while(true) {
+    const FPS = 33
 
-      const FPS = 33
+    var delayUpdate = await this.update()
+    var delayDraw =  await this.draw()
 
-      var delayUpdate = await this.update()
-      var delayDraw =  await this.draw()
+    let delayTotal = (FPS - ((delayUpdate + delayDraw)*1000))
 
-      let delayTotal = (FPS - ((delayUpdate + delayDraw)*1000))
-
-      if(delayTotal > 0) {
-        await sleep(FPS - delayTotal)
-      }
-
-      // this.#lastRender = timestamp
-      // window.requestAnimationFrame(this.turtle)
-    // }
+    if(delayTotal > 0) {
+      await sleep(FPS - delayTotal)
+    }
   }
 
   async update() {
@@ -230,15 +182,9 @@ class Turtle {
 
   forward(distance) {
     this.#actions.push({action: 'forwardAction', parameters: [distance]})
-    // `this.${this.#actions[0].action}(${this.#actions[0].parameters.toString()})`
   }
 
-  //Check a way to add actions to a list and run all the time one by one
   async forwardAction(distance) {
-    // console.log("------")
-    // console.log("forward")
-    // console.log("------")
-
     this.moving = true;
     distance = parseInt(distance)
 
@@ -260,9 +206,9 @@ class Turtle {
         }
       }
 
-      //Check if context has the position
       this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
       this.#position = postionWithAngle(this.#angle, displacement, this.#position)
+      this.spritePosition.x += displacement;
       this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
       console.log('forward while in')
 
@@ -315,6 +261,11 @@ class Turtle {
     this.#actions.push({action: 'speedAction', parameters: [speed]})
   }
 
+  async clear() {
+    this.#foregroundCanvas.fillStyle = "rgba(0,0,0,1)";
+    this.#foregroundCanvas.globalCompositeOperation = "destination-out";
+  }
+
   async speedAction(speed) {
     this.#speed = speed
   }
@@ -333,6 +284,13 @@ class Turtle {
 
   async rightAction(value) {
     this.#angle += parseInt(value)
+
+    console.log("sprite pos", this.spritePosition)
+    console.log("pos", this.#position)
+
+    this.#foregroundCanvas.translate(this.spritePosition.x + 50, this.spritePosition.y + 50);
+    this.#foregroundCanvas.rotate(angleInDegrees(value));
+    this.#foregroundCanvas.translate(-this.spritePosition.x - 50, -this.spritePosition.y - 50);
   }
 
   left(value) {
@@ -341,6 +299,10 @@ class Turtle {
 
   async leftAction(value) {
     this.#angle = 360 - parseInt(value) + this.#angle
+
+    this.#foregroundCanvas.translate(this.spritePosition.x + 50, this.spritePosition.y + 50);
+    this.#foregroundCanvas.rotate(angleInDegrees(-value))
+    this.#foregroundCanvas.translate(-this.spritePosition.x - 50, -this.spritePosition.y - 50);
   }
 
   setPosition(x, y) {
@@ -353,61 +315,35 @@ class Turtle {
 
     console.log(newX, newY, x, y)
 
-    // this.#backgroundCanvas.beginPath();
     this.#backgroundCanvas.moveTo(newX, newY)
-    // this.#backgroundCanvas.stroke();
     this.#position.x = newX
     this.#position.y = newY
   }
 
-  // getPosition() {
-  //   //
-  // }
-
-  // getPositionAction() {
-  //   return this.#position
-  // }
-
-  //Move this draw to component
   async draw() {
     var t0 = performance.now()
     this.#backgroundCanvas.stroke();
 
+    console.log(-Number.MAX_SAFE_INTEGER)
     this.#foregroundCanvas.clearRect(
-      this.width/2*-1,
-      this.height/2*-1,
-      this.width,
-      this.height
+      this.spritePosition.x - this.width,
+      this.spritePosition.y - this.height,
+      this.width*3,
+      this.height*3
     );
-    // spriteMove(this.image, this.#foregroundCanvas)
 
     if(this.moving) {
-      await this.sprite.run(this.#position)
+      await this.sprite.run(this.spritePosition, this.#angle)
     }
     else {
-      await this.sprite2.run(this.#position)
+      await this.sprite2.run(this.spritePosition, this.#angle)
     }
 
-    // In the example a fragment of the image is picked from (100, 0), with a width of 200 and height of 50.
-    // The fragment is drawn to (10, 30), with the same width and height as the source. The result will look like this
-    // context.drawImage(img,sx,sy,swidth,sheight,x,y,width,height);
-    // context.drawImage(img, 100, 0, 200, 50, 10, 30, 200, 50);
-
-    // this.#foregroundCanvas.drawImage(this.image, this.#position.x - 15, this.#position.y - 15, 30, 30)
     var t1 = performance.now()
 
     return t1 - t0
   }
 }
-
-// Get a sprite image
-// See the size and how to cut the image
-// See what attribute can be passed
-
-// Fix sprite move
-// Try to put 2 on the canvas
-// Make the turtle rotate
-// Make the todo list
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -425,7 +361,7 @@ function postionWithAngle(angle, distance, position) {
 }
 
 class Sprite {
-  constructor(rows, columns, sprite, canvas) {
+  constructor(rows, columns, sprite, canvas, a) {
     this.rows = rows;
     this.columns = columns;
     this.sprite = sprite;
@@ -434,71 +370,32 @@ class Sprite {
     this.currentFrame = 0;
     this.maxFrame = columns * rows - 1;
     this.canvas = canvas;
-    // console.log(canvas)
+    this.position = {x:-50, y:-50}
+    this.a = a
   }
 
-  async run(position) {
+  async run(position, angle) {
     this.currentFrame++;
 
     if (this.currentFrame > this.maxFrame){
         this.currentFrame = 0;
     }
 
-    // Update rows and columns
     let column = this.currentFrame % this.columns;
     let row = Math.floor(this.currentFrame / this.columns);
 
-    // console.log(this.frameWidth, this.frameHeight)
-    // Clear and draw
-    this.canvas.clearRect(0, 0, this.canvas.width*-1, this.canvas.height);
+    this.canvas.clearRect(0, 0,this.canvas.width*-1, this.canvas.height);
     this.canvas.drawImage(
       this.sprite,
       column * this.frameWidth,
       row * this.frameHeight,
       this.frameWidth,
       this.frameHeight,
-      position.x - (100/2),
-      position.y - (100/2),
+      position.x,
+      position.y,
       100,
       100);
 
     await sleep(1000/this.maxFrame)
   }
 }
-
-
-
-// function spriteMove(sprite, canvas) {
-//   // Define the number of columns and rows in the sprite
-//   let numColumns = 8;
-//   let numRows = 1;
-
-//   // Define the size of a frame
-//   let frameWidth = sprite.width / numColumns;
-//   let frameHeight = sprite.height / numRows;
-
-//   // The sprite image frame starts from 0
-//   let currentFrame = 0;
-
-//   setInterval(function()
-//   {
-//       // Pick a new frame
-//       currentFrame++;
-
-//       // Make the frames loop
-//       let maxFrame = numColumns * numRows - 1;
-//       if (currentFrame > maxFrame){
-//           currentFrame = 0;
-//       }
-
-//       // Update rows and columns
-//       let column = currentFrame % numColumns;
-//       let row = Math.floor(currentFrame / numColumns);
-
-//       // Clear and draw
-//       canvas.clearRect(0, 0, canvas.width, canvas.height);
-//       canvas.drawImage(sprite, column * frameWidth, row * frameHeight, frameWidth, frameHeight, 10, 30, 100, 100);
-
-//   //Wait for next step in the loop
-//   }, 1000);
-// }

@@ -110,31 +110,33 @@ class TurtleComponent extends HTMLElement {
     return foregroundCanvasContext
   }
 
-  idleSprite(idleSprite) {
+  idleSprite(idleSprite, forwardCanvas) {
     if(idleSprite === null) {
       idleSprite = new Image();
       idleSprite.src = 'idle_turtle.png';
     }
 
-    return idleSprite;
+    return new Sprite(1, 10, idleSprite, forwardCanvas, 0.2);
   }
 
-  moveSprite(moveSprite) {
+  moveSprite(moveSprite, forwardCanvas) {
     if(moveSprite === null) {
       moveSprite = new Image();
       moveSprite.src = 'turtle.png';
     }
 
-    return moveSprite;
+    return new Sprite(1, 8, moveSprite, forwardCanvas, 0.2);
   }
 
-  getTurtle(idleSprite = null, moveSprite = null, spriteScale = 1) {
+  getTurtle(idleSprite = null, moveSprite = null) {
+
+    let forwardCanvas = this.buildForwardCanvas()
+
     let turtle = new Turtle(
       this.#backgroundCanvasContext,
-      this.buildForwardCanvas(),
-      this.idleSprite(idleSprite),
-      this.moveSprite(moveSprite),
-      spriteScale,
+      forwardCanvas,
+      this.idleSprite(idleSprite, forwardCanvas),
+      this.moveSprite(moveSprite, forwardCanvas),
       this.width,
       this.height
     );
@@ -156,7 +158,7 @@ class Turtle {
   #backgroundCanvas
   #foregroundCanvas
 
-  constructor(backgroundCanvas, foregroundCanvas, spriteIdle, spriteMoving, spriteScale, width, height) {
+  constructor(backgroundCanvas, foregroundCanvas, spriteIdle, spriteMoving, width, height) {
     this.#position = { x: 0, y: 0 }
     this.#angle = 0
     this.#speed = 1
@@ -165,12 +167,11 @@ class Turtle {
     this.height = height;
     this.color = 'black';
 
-
     this.#backgroundCanvas = backgroundCanvas;
     this.#foregroundCanvas = foregroundCanvas;
 
-    this.idleSprite = new Sprite(1, 10, spriteIdle, foregroundCanvas, spriteScale)
-    this.moveSprite = new Sprite(1, 8, spriteMoving, foregroundCanvas, spriteScale)
+    this.idleSprite = spriteIdle
+    this.moveSprite = spriteMoving
     this.spritePosition = { x: 0, y: 0 }
 
     this.#actions = []
@@ -305,6 +306,9 @@ class Turtle {
   async rightAction(value) {
     this.#angle += parseInt(value)
 
+    while(this.angle > 360)
+      this.#angle = this.#angle - 360
+
     this.rotateForegroundCanvas('right', value)
   }
 
@@ -313,7 +317,10 @@ class Turtle {
   }
 
   async leftAction(value) {
-    this.#angle = 360 - parseInt(value) + this.#angle
+    this.#angle -= parseFloat(value) //360 - parseInt(value) + this.#angle
+
+    while(this.angle < 360)
+      this.#angle = this.#angle + 360
 
     this.rotateForegroundCanvas('left', value)
   }
@@ -323,7 +330,7 @@ class Turtle {
       value *= -1
 
     this.#foregroundCanvas.translate(this.spritePosition.x, this.spritePosition.y);
-    this.#foregroundCanvas.rotate(angleInDegrees(value))
+    this.#foregroundCanvas.rotate(angleInRadians(value))
     this.#foregroundCanvas.translate(-this.spritePosition.x, -this.spritePosition.y);
   }
 
@@ -332,12 +339,38 @@ class Turtle {
   }
 
   async setPositionAction(x, y) {
-    var newY = parseInt(y)
-    var newX = parseInt(x)
+    x = parseFloat(x)
+    y = parseFloat(y)
 
-    this.#backgroundCanvas.moveTo(newX, newY)
-    this.#position.x = newX
-    this.#position.y = newY
+    y = y*-1
+
+    this.#backgroundCanvas.moveTo(x, y)
+    this.#position = {x: x, y: y}
+
+    this.#foregroundCanvas.setTransform(1, 0, 0, 1, this.width * 0.5, this.height * 0.5);
+    this.spritePosition = {x: x, y: y}
+    this.rotateForegroundCanvas("", this.#angle)
+
+    // let tangentAngle = angleInDegrees(Math.atan(x / y))
+    // let betaAngle = this.#angle + tangentAngle
+    // let distanceToOrigin = Math.hypot(x, y)
+
+    // let newX = Math.sin(angleInRadians(betaAngle)) * distanceToOrigin
+    // let newY = Math.cos(angleInRadians(betaAngle)) * distanceToOrigin
+
+    // console.log(tangentAngle, betaAngle, distanceToOrigin, newX, newY)
+
+    // this.spritePosition.x = newX
+    // this.spritePosition.y = newY
+  }
+
+  getPosition() {
+    this.#actions.push({action: 'getPositionAction', parameters: []})
+  }
+
+  async getPositionAction() {
+    console.log(this.#position, this.spritePosition)
+    return this.#position
   }
 
   async draw() {
@@ -368,14 +401,18 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function angleInDegrees(angle) {
+function angleInRadians(angle) {
   return angle * Math.PI / 180
+}
+
+function angleInDegrees(angle) {
+  return angle * (180 / Math.PI)
 }
 
 function postionWithAngle(angle, distance, position) {
   return {
-    x: position.x + distance * (Math.cos(angleInDegrees(angle))),
-    y: position.y + distance * (Math.sin(angleInDegrees(angle)))
+    x: position.x + distance * (Math.cos(angleInRadians(angle))),
+    y: position.y + distance * (Math.sin(angleInRadians(angle)))
   }
 }
 
@@ -392,10 +429,10 @@ class Sprite {
     this.spriteScaleValue = spriteScale
     this.spriteScale = {width: this.frameWidth*spriteScale, height: this.frameHeight*spriteScale};
 
-    this.load(image, spriteScale);
+    this.loadImage(image, spriteScale);
   }
 
-  load(image, spriteScale) {
+  loadImage(image, spriteScale) {
     image.onload = () => {
       this.image = image;
       this.frameWidth = image.width / this.columns;
@@ -422,7 +459,7 @@ class Sprite {
       this.frameWidth,
       this.frameHeight,
       position.x - this.getCenterOffset().width,
-      position.y - this.getCenterOffset().width,
+      position.y - this.getCenterOffset().height,
       this.spriteScale.width,
       this.spriteScale.height
     );

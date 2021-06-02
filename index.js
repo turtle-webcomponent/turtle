@@ -154,18 +154,21 @@ class Turtle {
   #angle
   #speed
   #actions
+  #penUp
 
   #backgroundCanvas
   #foregroundCanvas
 
   constructor(backgroundCanvas, foregroundCanvas, spriteIdle, spriteMoving, width, height) {
-    this.#position = { x: 0, y: 0 }
-    this.#angle = 0
-    this.#speed = 1
+    this.#position = { x: 0, y: 0 };
+    this.#angle = 0;
+    this.#speed = 1;
+    this.#penUp = false;
     this.moving = false;
     this.width = width;
     this.height = height;
     this.color = 'black';
+    this.invisibleColor  = 'rgb(0, 0, 0, 0)';
 
     this.#backgroundCanvas = backgroundCanvas;
     this.#foregroundCanvas = foregroundCanvas;
@@ -256,9 +259,12 @@ class Turtle {
   }
 
   async setLineColorAction(color) {
-    this.#backgroundCanvas.strokeStyle = color;
     this.color = color;
-    this.#backgroundCanvas.beginPath();
+
+    if (!this.#penUp) {
+      this.#backgroundCanvas.strokeStyle = color;
+      this.#backgroundCanvas.beginPath();
+    }
   }
 
   circle(radius) {
@@ -373,6 +379,26 @@ class Turtle {
     return this.#position
   }
 
+  penUp() {
+    this.#actions.push({action: 'penUpAction', parameters: []});
+  }
+
+  async penUpAction() {
+    this.#penUp = true;
+    this.#backgroundCanvas.strokeStyle = this.invisibleColor;
+    this.#backgroundCanvas.beginPath();
+  }
+
+  penDown() {
+    this.#actions.push({action: 'penDownAction', parameters: []});
+  }
+
+  async penDownAction() {
+    this.#penUp = false;
+    this.#backgroundCanvas.strokeStyle = this.color;
+    this.#backgroundCanvas.beginPath();
+  }
+
   async draw() {
     var t0 = performance.now()
     this.#backgroundCanvas.stroke();
@@ -470,4 +496,10 @@ class Sprite {
   getCenterOffset() {
     return { width: (this.spriteScale.width/2), height: (this.spriteScale.height/2) }
   }
+}
+
+module.exports = {
+  TurtleComponent: TurtleComponent,
+  Turtle: Turtle,
+  Sprite: Sprite
 }

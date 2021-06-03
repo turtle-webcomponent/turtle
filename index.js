@@ -155,6 +155,7 @@ class Turtle {
   #speed
   #actions
   #penUp
+  #penSize
 
   #backgroundCanvas
   #foregroundCanvas
@@ -164,6 +165,7 @@ class Turtle {
     this.#angle = 0;
     this.#speed = 1;
     this.#penUp = false;
+    this.#penSize = 1;
     this.moving = false;
     this.width = width;
     this.height = height;
@@ -238,6 +240,7 @@ class Turtle {
 
       this.#position = postionWithAngle(this.#angle, displacement, this.#position)
       this.spritePosition.x += displacement;
+      this.#backgroundCanvas.lineWidth = this.#penSize;
       this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
 
       this.#backgroundCanvas.stroke();
@@ -397,6 +400,14 @@ class Turtle {
     this.#penUp = false;
     this.#backgroundCanvas.strokeStyle = this.color;
     this.#backgroundCanvas.beginPath();
+  }
+
+  penSize(size) {
+    this.#actions.push({action: 'penSizeAction', parameters: [size]});
+  }
+
+  async penSizeAction(size) {
+    this.#penSize = size;
   }
 
   async draw() {

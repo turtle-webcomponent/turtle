@@ -145,6 +145,10 @@ class TurtleComponent extends HTMLElement {
 
     return turtle
   }
+
+  bgColor(color) {
+    this.#backgroundCanvas.style.background = color;
+  }
 }
 
 customElements.define('x-turtle', TurtleComponent);

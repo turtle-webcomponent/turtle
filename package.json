@@ -1,6 +1,6 @@
 {
   "name": "turtle-component",
-  "version": "0.8.0",
+  "version": "0.8.5",
   "description": "Component to render a turtle canvas in web applications",
   "main": "index.js",
   "repository": "https://github.com/ThalissonMelo/turtle",

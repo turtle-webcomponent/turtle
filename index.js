@@ -59,7 +59,7 @@ class TurtleComponent extends HTMLElement {
     this.initializeCanvas()
   }
 
-  initializeCanvas() {
+  initializeCanvas(parent = document.body) {
     this.#backgroundCanvas.width = this.width
     this.#backgroundCanvas.height = this.height
     this.#backgroundCanvas.style = this.canvasStyle
@@ -68,7 +68,7 @@ class TurtleComponent extends HTMLElement {
 
     this.#backgroundCanvasContext.translate(this.#backgroundCanvas.width * 0.5, this.#backgroundCanvas.height * 0.5);
 
-    document.body.appendChild(this.#parentDiv)
+    parent.appendChild(this.#parentDiv)
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -88,7 +88,7 @@ class TurtleComponent extends HTMLElement {
   }
 
   async update(turtle){
-    while(true) {
+    while(!turtle.deleted) {
       await turtle.init();
     }
   }
@@ -170,6 +170,7 @@ class Turtle {
     this.#speed = 1;
     this.#penUp = false;
     this.#penSize = 1;
+    this.deleted = false;
     this.moving = false;
     this.width = width;
     this.height = height;
@@ -186,6 +187,12 @@ class Turtle {
     this.#actions = []
 
     this.init = this.init.bind(this)
+  }
+
+  destroy() {
+    this.clear();
+    this.#foregroundCanvas.canvas.remove();
+    this.deleted = true;
   }
 
   async init() {

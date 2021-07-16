@@ -154,6 +154,8 @@ class Turtle {
   #width
   #height
   #color
+  #penUp
+  #invisibleColor
 
   #backgroundCanvas
   #foregroundCanvas
@@ -167,9 +169,11 @@ class Turtle {
     this.#angle = 0
     this.#speed = 1
     this.#moving = false;
+    this.#penUp = false;
     this.#width = width;
     this.#height = height;
     this.#color = 'black';
+    this.#invisibleColor  = 'rgb(0, 0, 0, 0)';
 
     this.#backgroundCanvas = backgroundCanvas;
     this.#foregroundCanvas = foregroundCanvas;
@@ -200,7 +204,7 @@ class Turtle {
     let t0 = performance.now()
     if (this.#actions.length) {
       if(this.#allowedMethods(this.#actions[0].action)) {
-        await eval(`this.${this.#actions[0].action}(${this.#actions[0].parameters.map(v => `"${v}"`)})`)
+        await eval(`this.${this.#actions[0].action}(${this.#actions[0].parameters.map(value => `"${value}"`)})`)
       }
       this.#actions.splice(0, 1)
     }
@@ -215,7 +219,7 @@ class Turtle {
   #allowedMethods(action) {
     return ['#forwardAction', '#setLineColorAction', '#setLineColorAction',
             '#circleAction', '#rectangleAction', '#speedAction', '#rightAction',
-            '#leftAction', '#setPositionAction'].includes(action)
+            '#leftAction', '#setPositionAction', '#penUpAction', '#penDownAction'].includes(action)
   }
 
   async #forwardAction(distance) {
@@ -267,9 +271,12 @@ class Turtle {
   }
 
   async #setLineColorAction(color) {
-    this.#backgroundCanvas.strokeStyle = color;
-    this.#color = color;
-    this.#backgroundCanvas.beginPath();
+    this.color = color;
+
+    if (!this.#penUp) {
+      this.#backgroundCanvas.strokeStyle = color;
+      this.#backgroundCanvas.beginPath();
+    }
   }
 
   circle(radius) {
@@ -364,6 +371,26 @@ class Turtle {
       await sleep(33)
 
     return this.#position
+  }
+
+  penUp() {
+    this.#actions.push({action: '#penUpAction', parameters: []});
+  }
+
+  async #penUpAction() {
+    this.#penUp = true;
+    this.#backgroundCanvas.strokeStyle = this.#invisibleColor;
+    this.#backgroundCanvas.beginPath();
+  }
+
+  penDown() {
+    this.#actions.push({action: '#penDownAction', parameters: []});
+  }
+
+  async #penDownAction() {
+    this.#penUp = false;
+    this.#backgroundCanvas.strokeStyle = this.color;
+    this.#backgroundCanvas.beginPath();
   }
 
   async #draw() {
@@ -472,4 +499,10 @@ class Sprite {
   #getCenterOffset() {
     return { width: (this.#spriteScale.width/2), height: (this.#spriteScale.height/2) }
   }
+}
+
+module.exports = {
+  TurtleComponent: TurtleComponent,
+  Turtle: Turtle,
+  Sprite: Sprite
 }

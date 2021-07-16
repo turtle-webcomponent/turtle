@@ -232,8 +232,6 @@ class Turtle {
     const FPS = 66
 
     while (distance) {
-      await this.#setLineColorAction(this.#color);
-
       if (Math.abs(distance) < this.#speed / 10 * FPS) {
         displacement = distance;
       }
@@ -271,11 +269,11 @@ class Turtle {
   }
 
   async #setLineColorAction(color) {
-    this.color = color;
+    this.#color = color;
 
     if (!this.#penUp) {
-      this.#backgroundCanvas.strokeStyle = color;
       this.#backgroundCanvas.beginPath();
+      this.#backgroundCanvas.strokeStyle = color;
     }
   }
 
@@ -391,6 +389,7 @@ class Turtle {
     this.#penUp = false;
     this.#backgroundCanvas.strokeStyle = this.color;
     this.#backgroundCanvas.beginPath();
+    this.#backgroundCanvas.strokeStyle = this.#color;
   }
 
   async #draw() {

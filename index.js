@@ -2,9 +2,7 @@ import Sprite from './sprite.js';
 import Turtle from './turtle.js';
 
 class TurtleComponent extends HTMLElement {
-
   #backgroundCanvas
-  #backgroundCanvasContext
   #parentDiv
 
   static get observedAttributes() {
@@ -17,8 +15,6 @@ class TurtleComponent extends HTMLElement {
     this.#backgroundCanvas = document.createElement("canvas");
 
     this.#parentDiv.appendChild(this.#backgroundCanvas);
-
-    this.#backgroundCanvasContext = this.#backgroundCanvas.getContext("2d")
   }
 
   get width() {
@@ -37,26 +33,23 @@ class TurtleComponent extends HTMLElement {
     this.setAttribute('height', value);
   }
 
-  get canvasStyle() {
-    return this.getAttribute('canvas-style');
+  get canvasClass() {
+    return this.getAttribute('canvas-class');
   }
 
-  set canvasStyle(value) {
-    this.setAttribute('canvas-style', value);
+  set canvasClass(value) {
+    this.setAttribute('canvas-class', value);
   }
 
   connectedCallback() {
     if (!this.width) {
-      this.rating = 300;
+      this.width = 300;
     }
     if (!this.height) {
-      this.maxRating = 300;
+      this.height = 300;
     }
-    if (!this.canvasStyle) {
-      this.maxRating = "border: solid 1px black;";
-    }
-    if (!this.spriteScale) {
-      this.spriteScale = 1;
+    if (!this.canvasClass) {
+      this.canvasClass = "border: solid 1px black;";
     }
 
     this.initializeCanvas()
@@ -65,11 +58,13 @@ class TurtleComponent extends HTMLElement {
   initializeCanvas(parent = document.body) {
     this.#backgroundCanvas.width = this.width
     this.#backgroundCanvas.height = this.height
-    this.#backgroundCanvas.style = this.canvasStyle
+    this.#backgroundCanvas.style = "position: absolute !important"
+    this.#backgroundCanvas.className = this.canvasClass
 
     this.#parentDiv.style = "position: relative;"
 
-    this.#backgroundCanvasContext.translate(this.#backgroundCanvas.width * 0.5, this.#backgroundCanvas.height * 0.5);
+    this.#backgroundCanvas.getContext("2d").translate(this.#backgroundCanvas.width * 0.5,
+                                                      this.#backgroundCanvas.height * 0.5);
 
     parent.appendChild(this.#parentDiv)
   }
@@ -83,20 +78,20 @@ class TurtleComponent extends HTMLElement {
         case 'height':
           this.height = newVal;
           break;
-        case 'canvas-style':
-          this.canvasStyle = newVal
+        case 'canvas-class':
+          this.canvasClass = newVal
           break;
       }
     }
   }
 
-  async update(turtle){
-    while(!turtle.deleted) {
+  async #update(turtle){
+    while(true) {
       await turtle.init();
     }
   }
 
-  buildForwardCanvas() {
+  #buildForwardCanvas() {
     let foregroundCanvas = document.createElement("canvas");
     foregroundCanvas.style = "position: absolute;"
     this.#parentDiv.appendChild(foregroundCanvas);
@@ -113,7 +108,7 @@ class TurtleComponent extends HTMLElement {
     return foregroundCanvasContext
   }
 
-  idleSprite(idleSprite, forwardCanvas) {
+  #idleSprite(idleSprite, forwardCanvas) {
     if(idleSprite === null) {
       idleSprite = new Image();
       idleSprite.src = 'idle_turtle.png';
@@ -122,7 +117,7 @@ class TurtleComponent extends HTMLElement {
     return new Sprite(1, 10, idleSprite, forwardCanvas, 0.2);
   }
 
-  moveSprite(moveSprite, forwardCanvas) {
+  #moveSprite(moveSprite, forwardCanvas) {
     if(moveSprite === null) {
       moveSprite = new Image();
       moveSprite.src = 'turtle.png';
@@ -133,32 +128,21 @@ class TurtleComponent extends HTMLElement {
 
   getTurtle(idleSprite = null, moveSprite = null) {
 
-    let forwardCanvas = this.buildForwardCanvas()
+    let forwardCanvas = this.#buildForwardCanvas()
 
     let turtle = new Turtle(
-      this.#backgroundCanvasContext,
+      this.#backgroundCanvas.getContext("2d"),
       forwardCanvas,
-      this.idleSprite(idleSprite, forwardCanvas),
-      this.moveSprite(moveSprite, forwardCanvas),
+      this.#idleSprite(idleSprite, forwardCanvas),
+      this.#moveSprite(moveSprite, forwardCanvas),
       this.width,
       this.height
     );
 
-    this.update(turtle)
+    this.#update(turtle)
 
     return turtle
   }
-
-  bgColor(color) {
-    this.#backgroundCanvas.style.background = color;
-  }
 }
 
-customElements.define('x-turtle', TurtleComponent);
-
-
-// module.exports = {
-//   TurtleComponent: TurtleComponent,
-//   Turtle: Turtle,
-//   Sprite: Sprite
-// }
+export default { TurtleComponent, Sprite, Turtle }

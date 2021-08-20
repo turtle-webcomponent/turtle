@@ -1,6 +1,6 @@
 import { sleep, angleInRadians, positionWithAngle } from './utils.js';
 
-class Turtle {
+export default class Turtle {
   #position
   #angle
   #speed
@@ -101,7 +101,7 @@ class Turtle {
 
       this.#backgroundCanvas.moveTo(this.#position.x, this.#position.y);
 
-      this.#position = postionWithAngle(this.#angle, displacement, this.#position)
+      this.#position = positionWithAngle(this.#angle, displacement, this.#position)
       this.#spritePosition.x += displacement;
       this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
 

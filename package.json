@@ -3,6 +3,7 @@
   "version": "0.8.5",
   "description": "Component to render a turtle canvas in web applications",
   "main": "index.js",
+  "type": "module",
   "repository": "https://github.com/ThalissonMelo/turtle",
   "author": "Guilherme Silva <guilherme.francais@gmail.com> e Thalisson Melo <tallisonmelo@hotmail.com>",
   "license": "MIT"

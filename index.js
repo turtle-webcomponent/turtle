@@ -145,4 +145,6 @@ class TurtleComponent extends HTMLElement {
   }
 }
 
-export default { TurtleComponent, Sprite, Turtle }
+customElements.define('x-turtle', TurtleComponent);
+
+export { TurtleComponent, Sprite, Turtle }

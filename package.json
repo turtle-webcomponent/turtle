@@ -6,5 +6,8 @@
   "type": "module",
   "repository": "https://github.com/ThalissonMelo/turtle",
   "author": "Guilherme Silva <guilherme.francais@gmail.com> e Thalisson Melo <tallisonmelo@hotmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "http": "^0.0.1-security"
+  }
 }

@@ -7,7 +7,25 @@
   "repository": "https://github.com/ThalissonMelo/turtle",
   "author": "Guilherme Silva <guilherme.francais@gmail.com> e Thalisson Melo <tallisonmelo@hotmail.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest ./test/"
+  },
+  "jest": {
+    "verbose": true,
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "./src/*.js"
+    ],
+    "coverageReporters": [
+      "html"
+    ]
+  },
   "dependencies": {
-    "http": "^0.0.1-security"
+    "@babel/core": "^7.15.5",
+    "@babel/preset-env": "^7.15.4",
+    "babel-jest": "^27.1.0",
+    "http": "^0.0.1-security",
+    "jest": "^27.1.0"
   }
 }

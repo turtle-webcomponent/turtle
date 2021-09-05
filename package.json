@@ -1,6 +1,6 @@
 {
   "name": "turtle-component",
-  "version": "0.8.5",
+  "version": "0.9.0",
   "description": "Component to render a turtle canvas in web applications",
   "main": "index.js",
   "type": "module",

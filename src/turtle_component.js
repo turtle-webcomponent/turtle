@@ -111,7 +111,7 @@ class TurtleComponent extends HTMLElement {
   #idleSprite(idleSprite, forwardCanvas) {
     if(idleSprite === null) {
       idleSprite = new Image();
-      idleSprite.src = 'idle_turtle.png';
+      idleSprite.src = './assets/idle_turtle.png';
     }
 
     return new Sprite(1, 10, idleSprite, forwardCanvas, 0.2);
@@ -120,7 +120,7 @@ class TurtleComponent extends HTMLElement {
   #moveSprite(moveSprite, forwardCanvas) {
     if(moveSprite === null) {
       moveSprite = new Image();
-      moveSprite.src = 'turtle.png';
+      moveSprite.src = './assets/turtle.png';
     }
 
     return new Sprite(1, 8, moveSprite, forwardCanvas, 0.2);

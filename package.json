@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node server.js",
-    "test": "jest ./test/"
+    "test": "jest ./tests/"
   },
   "jest": {
     "verbose": true,
@@ -19,13 +19,18 @@
     ],
     "coverageReporters": [
       "html"
+    ],
+    "setupFiles": [
+      "./tests/__mocks__/client.js"
     ]
   },
   "dependencies": {
     "@babel/core": "^7.15.5",
     "@babel/preset-env": "^7.15.4",
     "babel-jest": "^27.1.0",
+    "canvas": "^2.8.0",
     "http": "^0.0.1-security",
-    "jest": "^27.1.0"
+    "jest": "^27.1.0",
+    "jsdom": "^17.0.0"
   }
 }

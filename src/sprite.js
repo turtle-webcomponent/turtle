@@ -26,13 +26,15 @@ export default class Sprite {
   }
 
   #loadImage(image, spriteScale) {
-    image.onload = () => {
+    let onloadFunction = () => {
       this.#image = image;
       this.#frameWidth = image.width / this.#columns;
       this.#frameHeight = image.height / this.#rows;
       this.#spriteScale = { width: this.#frameWidth * spriteScale, height: this.#frameHeight * spriteScale };
       this.#currentFrame = 0;
     }
+
+    image.onload = onloadFunction();
   }
 
   async run(position) {
@@ -45,14 +47,17 @@ export default class Sprite {
     let column = this.#currentFrame % this.#columns;
     let row = Math.floor(this.#currentFrame / this.#columns);
 
+    let dx = position.x - this.#getCenterOffset().width;
+    let dy = position.y - this.#getCenterOffset().height;
+
     this.#canvas.drawImage(
       this.#image,
       column * this.#frameWidth,
       row * this.#frameHeight,
       this.#frameWidth,
       this.#frameHeight,
-      position.x - this.#getCenterOffset().width,
-      position.y - this.#getCenterOffset().height,
+      dx,
+      dy,
       this.#spriteScale.width,
       this.#spriteScale.height
     );

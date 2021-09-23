@@ -58,9 +58,7 @@ export default class Turtle {
   async #update() {
     let t0 = performance.now()
     if (this.#actions.length) {
-      if (this.#allowedMethods(this.#actions[0].action)) {
-        await eval(`this.${this.#actions[0].action}(${this.#actions[0].parameters.map(value => `"${value}"`)})`)
-      }
+      await this[this.#actions[0].action](...this.#actions[0].parameters)
       this.#actions.splice(0, 1)
     }
     let t1 = performance.now()
@@ -68,16 +66,10 @@ export default class Turtle {
   }
 
   forward(distance) {
-    this.#actions.push({ action: '#forwardAction', parameters: [distance] })
+    this.#actions.push({ action: 'forwardAction', parameters: [distance] })
   }
 
-  #allowedMethods(action) {
-    return ['#forwardAction', '#setLineColorAction', '#setLineColorAction',
-      '#circleAction', '#rectangleAction', '#speedAction', '#rightAction',
-      '#leftAction', '#setPositionAction', '#penUpAction', '#penDownAction'].includes(action)
-  }
-
-  async #forwardAction(distance) {
+  async forwardAction(distance) {
     this.#backgroundCanvas.beginPath();
 
     this.#moving = true;
@@ -116,14 +108,14 @@ export default class Turtle {
   }
 
   backward(value) {
-    this.#actions.push({ action: '#forwardAction', parameters: [-value] })
+    this.#actions.push({ action: 'forwardAction', parameters: [-value] })
   }
 
   setLineColor(color) {
-    this.#actions.push({ action: '#setLineColorAction', parameters: [color] })
+    this.#actions.push({ action: 'setLineColorAction', parameters: [color] })
   }
 
-  async #setLineColorAction(color) {
+  async setLineColorAction(color) {
     this.#color = color;
 
     if (!this.#penUp) {
@@ -133,24 +125,24 @@ export default class Turtle {
   }
 
   circle(radius) {
-    this.#actions.push({ action: '#circleAction', parameters: [radius] })
+    this.#actions.push({ action: 'circleAction', parameters: [radius] })
   }
 
-  async #circleAction(radius) {
+  async circleAction(radius) {
     this.#backgroundCanvas.beginPath();
     this.#backgroundCanvas.arc(this.#position.x, this.#position.y, radius, 0, 2 * Math.PI);
   }
 
   rectangle(width, height) {
-    this.#actions.push({ action: '#rectangleAction', parameters: [width, height] })
+    this.#actions.push({ action: 'rectangleAction', parameters: [width, height] })
   }
 
-  async #rectangleAction(width, height) {
+  async rectangleAction(width, height) {
     this.#backgroundCanvas.rect(this.#position.x, this.#position.y, width, height);
   }
 
   speed(speed) {
-    this.#actions.push({ action: '#speedAction', parameters: [speed] })
+    this.#actions.push({ action: 'speedAction', parameters: [speed] })
   }
 
   async clear() {
@@ -158,7 +150,7 @@ export default class Turtle {
     this.#foregroundCanvas.globalCompositeOperation = "destination-out";
   }
 
-  async #speedAction(speed) {
+  async speedAction(speed) {
     this.#speed = speed
   }
 
@@ -167,10 +159,10 @@ export default class Turtle {
   }
 
   right(value) {
-    this.#actions.push({ action: '#rightAction', parameters: [value] })
+    this.#actions.push({ action: 'rightAction', parameters: [value] })
   }
 
-  async #rightAction(value) {
+  async rightAction(value) {
     this.#angle += parseInt(value)
 
     while (this.angle > 360)
@@ -180,10 +172,10 @@ export default class Turtle {
   }
 
   left(value) {
-    this.#actions.push({ action: '#leftAction', parameters: [value] })
+    this.#actions.push({ action: 'leftAction', parameters: [value] })
   }
 
-  async #leftAction(value) {
+  async leftAction(value) {
     this.#angle -= parseFloat(value)
 
     while (this.angle < 360)
@@ -202,10 +194,10 @@ export default class Turtle {
   }
 
   setPosition(x, y) {
-    this.#actions.push({ action: '#setPositionAction', parameters: [x, y] })
+    this.#actions.push({ action: 'setPositionAction', parameters: [x, y] })
   }
 
-  async #setPositionAction(x, y) {
+  async setPositionAction(x, y) {
     x = parseFloat(x)
     y = parseFloat(y)
 
@@ -227,20 +219,20 @@ export default class Turtle {
   }
 
   penUp() {
-    this.#actions.push({ action: '#penUpAction', parameters: [] });
+    this.#actions.push({ action: 'penUpAction', parameters: [] });
   }
 
-  async #penUpAction() {
+  async penUpAction() {
     this.#penUp = true;
     this.#backgroundCanvas.strokeStyle = this.#invisibleColor;
     this.#backgroundCanvas.beginPath();
   }
 
   penDown() {
-    this.#actions.push({ action: '#penDownAction', parameters: [] });
+    this.#actions.push({ action: 'penDownAction', parameters: [] });
   }
 
-  async #penDownAction() {
+  async penDownAction() {
     this.#penUp = false;
     this.#backgroundCanvas.strokeStyle = this.color;
     this.#backgroundCanvas.beginPath();

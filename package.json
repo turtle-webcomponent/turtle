@@ -16,7 +16,7 @@
     "testURL": "http://localhost/",
     "collectCoverage": true,
     "collectCoverageFrom": ["./src/*.js"],
-    "coverageReporters": ["html"],
+    "coverageReporters": ["json-summary"],
     "setupFiles": ["./tests/__mocks__/client.js"]
   },
   "dependencies": {

@@ -1,0 +1,17 @@
+1 - Deixar mais claro o que é publico e o que é privado
+
+2 - Remover a quantidade grande de variáveis
+
+3 - Tentar usar a posição do contexto - X - context.canvas.position - try this
+
+4 - Excluir uma turtle
+
+5 - Método q modifica o background
+
+6 - Procurar métodos extras que sejam principais do turtle para implementar
+
+7 - Implementar mais carimbos
+
+8 - Implementar método para pintar desenho
+
+9 - Implementar PenUp, PenDown, Pensize etc...

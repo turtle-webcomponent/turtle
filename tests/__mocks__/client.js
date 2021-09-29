@@ -4,3 +4,4 @@ global.document = dom.window.document;
 global.window = dom.window;
 global.HTMLElement = global.window.HTMLElement;
 global.customElements = global.window.customElements;
+global.Image = global.window.Image;

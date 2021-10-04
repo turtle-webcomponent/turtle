@@ -143,6 +143,10 @@ class TurtleComponent extends HTMLElement {
 
     return turtle
   }
+
+  getImageData(x, y, width, height) {
+    return this.#backgroundCanvas.getContext('2d').getImageData(x, y, width, height);
+  }
 }
 
 customElements.define('x-turtle', TurtleComponent);

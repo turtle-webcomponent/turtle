@@ -65,6 +65,10 @@ export default class Turtle {
     return t1 - t0
   }
 
+  get angle() {
+    return this.#angle;
+  }
+
   forward(distance) {
     this.#actions.push({ action: 'forwardAction', parameters: [distance] })
   }
@@ -142,16 +146,17 @@ export default class Turtle {
   }
 
   speed(speed) {
-    this.#actions.push({ action: 'speedAction', parameters: [speed] })
+    if (speed) this.#actions.push({ action: 'speedAction', parameters: [speed] });
+    else return this.#speed;
+  }
+
+  async speedAction(speed) {
+    this.#speed = speed;
   }
 
   async clear() {
     this.#foregroundCanvas.fillStyle = "rgba(0,0,0,1)";
     this.#foregroundCanvas.globalCompositeOperation = "destination-out";
-  }
-
-  async speedAction(speed) {
-    this.#speed = speed
   }
 
   turtleCommandsList(commands) {
@@ -165,7 +170,7 @@ export default class Turtle {
   async rightAction(value) {
     this.#angle += parseInt(value)
 
-    while (this.angle > 360)
+    while (this.angle >= 360)
       this.#angle = this.#angle - 360
 
     this.#rotateForegroundCanvas('right', value)
@@ -178,7 +183,7 @@ export default class Turtle {
   async leftAction(value) {
     this.#angle -= parseFloat(value)
 
-    while (this.angle < 360)
+    while (this.angle < 0)
       this.#angle = this.#angle + 360
 
     this.#rotateForegroundCanvas('left', value)

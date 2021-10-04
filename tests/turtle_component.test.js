@@ -62,7 +62,7 @@ describe('when component is created correctly', () => {
   });
 
   test('can initialize component as tag', () => {
-    global.document.body.innerHTML = `<x-turtle />`;
+    global.document.body.innerHTML = '<x-turtle />';
     const turtle = global.document.getElementsByTagName('x-turtle')[0];
 
     expect(turtle).toMatchObject(stubbedCanvas);

@@ -50,7 +50,7 @@ export default class Sprite {
     let dx = position.x - this.#getCenterOffset().width;
     let dy = position.y - this.#getCenterOffset().height;
 
-    this.#canvas.drawImage(
+    this.#canvas.onload = () => this.#canvas.drawImage(
       this.#image,
       column * this.#frameWidth,
       row * this.#frameHeight,

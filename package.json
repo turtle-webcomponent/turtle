@@ -1,6 +1,6 @@
 {
   "name": "turtle-component",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Component to render a turtle canvas in web applications",
   "main": "index.js",
   "type": "module",
@@ -15,9 +15,16 @@
     "verbose": true,
     "testURL": "http://localhost/",
     "collectCoverage": true,
-    "collectCoverageFrom": ["./src/*.js"],
-    "coverageReporters": ["json-summary", "html"],
-    "setupFiles": ["./tests/__mocks__/client.js"]
+    "collectCoverageFrom": [
+      "./src/*.js"
+    ],
+    "coverageReporters": [
+      "json-summary",
+      "html"
+    ],
+    "setupFiles": [
+      "./tests/__mocks__/client.js"
+    ]
   },
   "dependencies": {
     "http": "^0.0.1-security"

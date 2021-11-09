@@ -7,3 +7,4 @@ global.HTMLElement = global.window.HTMLElement;
 global.customElements = global.window.customElements;
 global.Image = global.window.Image;
 global.performance = performance;
+global.location = global.window.location;

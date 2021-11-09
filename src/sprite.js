@@ -35,7 +35,7 @@ export default class Sprite {
     }
 
     image.onload = onloadFunction;
-    image.onload();
+    if (image.complete && image.naturalHeight !== 0) image.onload();
   }
 
   async run(position) {

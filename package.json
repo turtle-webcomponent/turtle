@@ -30,8 +30,6 @@
     "http": "^0.0.1-security"
   },
   "devDependencies": {
-    "@babel/core": "^7.15.8",
-    "@babel/preset-env": "^7.15.8",
     "babel-jest": "^27.2.5",
     "canvas": "^2.8.0",
     "jest": "^27.2.5",

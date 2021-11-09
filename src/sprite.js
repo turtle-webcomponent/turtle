@@ -35,6 +35,7 @@ export default class Sprite {
     }
 
     image.onload = onloadFunction;
+    image.onload();
   }
 
   async run(position) {

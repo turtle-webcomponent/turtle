@@ -4,6 +4,7 @@ import Turtle from './turtle.js';
 class TurtleComponent extends HTMLElement {
   #backgroundCanvas
   #parentDiv
+  #forwardCanvas
 
   static get observedAttributes() {
     return ['width', 'height'];
@@ -13,6 +14,7 @@ class TurtleComponent extends HTMLElement {
     super()
     this.#parentDiv = document.createElement("div")
     this.#backgroundCanvas = document.createElement("canvas");
+    this.#forwardCanvas = this.#buildForwardCanvas()
 
     this.#parentDiv.appendChild(this.#backgroundCanvas);
   }
@@ -108,33 +110,30 @@ class TurtleComponent extends HTMLElement {
     return foregroundCanvasContext
   }
 
-  #idleSprite(idleSprite, forwardCanvas) {
-    if(idleSprite === null) {
-      idleSprite = new Image();
-      idleSprite.src = location.protocol !== 'https:' ? '../assets/idle_turtle.png' : 'https://i.imgur.com/VyRnYnX.png';
-    }
+  #idleSprite(idleSprite) {
+    idleSprite = new Image();
+    idleSprite.src = 'https://i.imgur.com/VyRnYnX.png';
 
-    return new Sprite(1, 10, idleSprite, forwardCanvas, 0.2);
+    return new Sprite(1, 10, idleSprite, this.#forwardCanvas, 0.2);
   }
 
-  #moveSprite(moveSprite, forwardCanvas) {
-    if(moveSprite === null) {
-      moveSprite = new Image();
-      moveSprite.src = location.protocol !== 'https:' ? '../assets/turtle.png' : 'https://i.imgur.com/scpCzY8.png';
-    }
+  #moveSprite(moveSprite) {
+    moveSprite = new Image();
+    moveSprite.src = 'https://i.imgur.com/scpCzY8.png';
 
-    return new Sprite(1, 8, moveSprite, forwardCanvas, 0.2);
+    return new Sprite(1, 8, moveSprite, this.#forwardCanvas, 0.2);
+  }
+
+  buildSprite(rows, colums, image, scale) {
+    return new Sprite(rows, colums, image, this.#forwardCanvas, scale);
   }
 
   getTurtle(idleSprite = null, moveSprite = null) {
-
-    let forwardCanvas = this.#buildForwardCanvas()
-
     let turtle = new Turtle(
       this.#backgroundCanvas.getContext("2d"),
-      forwardCanvas,
-      this.#idleSprite(idleSprite, forwardCanvas),
-      this.#moveSprite(moveSprite, forwardCanvas),
+      this.#forwardCanvas,
+      (idleSprite === null) ? this.#idleSprite(idleSprite) : idleSprite,
+      (moveSprite === null) ? this.#moveSprite(moveSprite) : moveSprite,
       this.width,
       this.height
     );

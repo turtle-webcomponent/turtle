@@ -6,7 +6,7 @@
 
   To use turtle component you just need to add this lib on your package json:
 
-  ```
+  ```javascript
     "dependencies": {
       ...
       "turtle-component": "^0.9.2"
@@ -38,7 +38,7 @@ This way you cand draw many things on the screen, here down is a example:
 
 with this code:
 
-```
+```javascript
 turtle.setLineColor('blue')
 for(let i = 0; i < 20; i++){
     turtle.forward(i * 10)
@@ -68,7 +68,7 @@ Have fun!
 * penDown(): Sets the drawing mode
 * turtleCommandsList(actionList): Receives a Json list of commands, the list mus be on this format:
 
-```
+```javascript
 [
   { action: 'forwardAction',
     parameters: [100]

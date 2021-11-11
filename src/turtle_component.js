@@ -1,7 +1,9 @@
+import idleTurtle from '../assets/idle_turtle.png';
+import moveTurtle from '../assets/turtle.png';
 import Sprite from './sprite.js';
 import Turtle from './turtle.js';
 
-class TurtleComponent extends HTMLElement {
+export default class TurtleComponent extends HTMLElement {
   #backgroundCanvas
   #parentDiv
 
@@ -111,7 +113,7 @@ class TurtleComponent extends HTMLElement {
   #idleSprite(idleSprite, forwardCanvas) {
     if(idleSprite === null) {
       idleSprite = new Image();
-      idleSprite.src = location.protocol !== 'https:' ? '../assets/idle_turtle.png' : 'https://i.imgur.com/VyRnYnX.png';
+      idleSprite.src = idleTurtle;
     }
 
     return new Sprite(1, 10, idleSprite, forwardCanvas, 0.2);
@@ -120,7 +122,7 @@ class TurtleComponent extends HTMLElement {
   #moveSprite(moveSprite, forwardCanvas) {
     if(moveSprite === null) {
       moveSprite = new Image();
-      moveSprite.src = location.protocol !== 'https:' ? '../assets/turtle.png' : 'https://i.imgur.com/scpCzY8.png';
+      moveSprite.src = moveTurtle;
     }
 
     return new Sprite(1, 8, moveSprite, forwardCanvas, 0.2);
@@ -148,5 +150,3 @@ class TurtleComponent extends HTMLElement {
     return this.#backgroundCanvas.getContext('2d').getImageData(x, y, width, height);
   }
 }
-
-export { TurtleComponent, Sprite, Turtle }

@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 
 http.createServer(function (request, response) {
-
   var filePath = '.' + request.url;
   if (filePath == './') {
     filePath = './index.html';

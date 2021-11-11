@@ -128,7 +128,7 @@ class TurtleComponent extends HTMLElement {
     return new Sprite(rows, colums, image, null, scale);
   }
 
-  getTurtle(idleSprite = null, moveSprite = null) {
+  createTurtle(idleSprite = null, moveSprite = null) {
     let forwardCanvas = this.#buildForwardCanvas();
 
     if (idleSprite) idleSprite.setCanvas(forwardCanvas);

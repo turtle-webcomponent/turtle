@@ -26,22 +26,75 @@ It's realy simple to use it, this turtle js lib is a HTML component so you justo
 
 ![image](https://user-images.githubusercontent.com/20938232/141322294-3098e273-73a8-46d2-b84a-3f0c893000b1.png)
 
+The component has a method called createTurtle that retuns a new turtle on the canvas screen
 
-![image](https://user-images.githubusercontent.com/20938232/141025190-c2b3e88c-dce1-49ec-8396-ba7f8069a791.png)
+![image](https://user-images.githubusercontent.com/20938232/141324518-36f2a24f-c5a6-49fb-a7cc-bf56747d8d31.png)
+
+After use the create turtle the sprite of the turtle will pop up on the canvas, then just use the created turtle to execute the turtle commands, for example:
+
+![image](https://user-images.githubusercontent.com/20938232/141324887-279592f2-871e-4f3a-a66f-d6ff3cd9a72c.png)
+
+This way you cand draw many things on the screen, here down is a example:
+
+with this code:
+
+```
+turtle.setLineColor('blue')
+for(let i = 0; i < 20; i++){
+    turtle.forward(i * 10)
+    turtle.right(144)
+}
+```
+you can draw this:
+
+![image](https://user-images.githubusercontent.com/20938232/141325463-5c952176-cd87-4fb2-8a57-3baf1fef9e65.png)
+
+Have fun!
 
 ## Turtle functions
 
-* forward(value)
-* backward(value)
-* setLineColor(color)
-* circle(radius)
-* rectangle(width, height)
-* speed(value)
-* clear()
-* right(angle)
-* left(angle)
-* turtleCommandsList(actionList)
-* setPosition(x, y)
-* getPosition()
-* penUp()
-* penDown()
+* forward(value): draw a line forward the size you define
+* backward(value): draw a line backward the size you define
+* setLineColor(color): changes the line color
+* circle(radius): creates a circle on the screen wiht the defined radius
+* rectangle(width, height): creats a retangle on the screen with the defined width and height
+* speed(value): Changes the draw speed
+* clear(): Cleans the canvas
+* right(angle): Add a defined angle to right
+* left(angle): Add a defined angle to left
+* setPosition(x, y): Changes the turtle position
+* getPosition(): Returns the turtle position
+* penUp(): Unses the drawing mode
+* penDown(): Sets the drawing mode
+* turtleCommandsList(actionList): Receives a Json list of commands, the list mus be on this format:
+
+```
+[
+  { action: 'forwardAction',
+    parameters: [100]
+  },
+  {
+    action: 'leftAction',
+    parameters: [90]
+  },
+  { action: 'forwardAction',
+    parameters: [100]
+  },
+  {
+    action: 'leftAction',
+    parameters: [90]
+  },
+  { action: 'forwardAction',
+    parameters: [100]
+  },
+  {
+    action: 'leftAction',
+    parameters: [90]
+  },
+  { action: 'forwardAction',
+    parameters: [100]
+  },
+]
+```
+
+Note that the actions must have an `Action` suffix on the action name, and the parameters must be a list.

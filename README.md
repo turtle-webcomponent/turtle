@@ -22,6 +22,11 @@
 
 ## How to Use
 
+It's realy simple to use it, this turtle js lib is a HTML component so you justo need to add the `x-turtle` component to you HTML, like this:
+
+![image](https://user-images.githubusercontent.com/20938232/141322294-3098e273-73a8-46d2-b84a-3f0c893000b1.png)
+
+
 ![image](https://user-images.githubusercontent.com/20938232/141025190-c2b3e88c-dce1-49ec-8396-ba7f8069a791.png)
 
 ## Turtle functions
@@ -40,6 +45,3 @@
 * getPosition()
 * penUp()
 * penDown()
-
-
-

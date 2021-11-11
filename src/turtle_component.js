@@ -1,5 +1,5 @@
-const idleTurtle = './public/c4bdd1f881542c91b13993365d85b253.png';
-const moveTurtle = './public/5aa2068133540ef58655ac5b7381cae7.png';
+import idleTurtle from '../assets/idle_turtle.png';
+import moveTurtle from '../assets/turtle.png';
 import Sprite from './sprite.js';
 import Turtle from './turtle.js';
 

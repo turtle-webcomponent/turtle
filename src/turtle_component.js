@@ -1,11 +1,12 @@
-import idleTurtle from '../assets/idle_turtle.png';
-import moveTurtle from '../assets/turtle.png';
+const idleTurtle = './public/c4bdd1f881542c91b13993365d85b253.png';
+const moveTurtle = './public/5aa2068133540ef58655ac5b7381cae7.png';
 import Sprite from './sprite.js';
 import Turtle from './turtle.js';
 
-export default class TurtleComponent extends HTMLElement {
+class TurtleComponent extends HTMLElement {
   #backgroundCanvas
   #parentDiv
+  #forwardCanvas
 
   static get observedAttributes() {
     return ['width', 'height'];
@@ -15,7 +16,6 @@ export default class TurtleComponent extends HTMLElement {
     super()
     this.#parentDiv = document.createElement("div")
     this.#backgroundCanvas = document.createElement("canvas");
-
     this.#parentDiv.appendChild(this.#backgroundCanvas);
   }
 
@@ -54,7 +54,7 @@ export default class TurtleComponent extends HTMLElement {
       this.canvasClass = "border: solid 1px black;";
     }
 
-    this.initializeCanvas()
+    this.initializeCanvas();
   }
 
   initializeCanvas(parent = document.body) {
@@ -68,7 +68,7 @@ export default class TurtleComponent extends HTMLElement {
     this.#backgroundCanvas.getContext("2d").translate(this.#backgroundCanvas.width * 0.5,
                                                       this.#backgroundCanvas.height * 0.5);
 
-    parent.appendChild(this.#parentDiv)
+    parent.appendChild(this.#parentDiv);
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
@@ -111,42 +111,46 @@ export default class TurtleComponent extends HTMLElement {
   }
 
   #idleSprite(idleSprite, forwardCanvas) {
-    if(idleSprite === null) {
-      idleSprite = new Image();
-      idleSprite.src = idleTurtle;
-    }
+    idleSprite = new Image();
+    idleSprite.src = idleTurtle;
 
     return new Sprite(1, 10, idleSprite, forwardCanvas, 0.2);
   }
 
   #moveSprite(moveSprite, forwardCanvas) {
-    if(moveSprite === null) {
-      moveSprite = new Image();
-      moveSprite.src = moveTurtle;
-    }
+    moveSprite = new Image();
+    moveSprite.src = moveTurtle;
 
     return new Sprite(1, 8, moveSprite, forwardCanvas, 0.2);
   }
 
-  getTurtle(idleSprite = null, moveSprite = null) {
+  buildSprite(rows, colums, image, scale) {
+    return new Sprite(rows, colums, image, null, scale);
+  }
 
-    let forwardCanvas = this.#buildForwardCanvas()
+  getTurtle(idleSprite = null, moveSprite = null) {
+    let forwardCanvas = this.#buildForwardCanvas();
+
+    if (idleSprite) idleSprite.setCanvas(forwardCanvas);
+    if (moveSprite) moveSprite.setCanvas(forwardCanvas);
 
     let turtle = new Turtle(
       this.#backgroundCanvas.getContext("2d"),
       forwardCanvas,
-      this.#idleSprite(idleSprite, forwardCanvas),
-      this.#moveSprite(moveSprite, forwardCanvas),
+      (idleSprite === null) ? this.#idleSprite(idleSprite, forwardCanvas) : idleSprite,
+      (moveSprite === null) ? this.#moveSprite(moveSprite, forwardCanvas) : moveSprite,
       this.width,
       this.height
     );
 
-    this.#update(turtle)
+    this.#update(turtle);
 
-    return turtle
+    return turtle;
   }
 
   getImageData(x, y, width, height) {
     return this.#backgroundCanvas.getContext('2d').getImageData(x, y, width, height);
   }
 }
+
+export { TurtleComponent, Sprite }

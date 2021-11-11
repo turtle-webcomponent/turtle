@@ -35,10 +35,21 @@ export default class Sprite {
     }
 
     image.onload = onloadFunction;
-    if (image.complete && image.naturalHeight !== 0) image.onload();
+    this.#reloadImage();
+  }
+
+  #reloadImage() {
+    if (this.#image.complete && this.#image.naturalHeight !== 0) this.#image.onload();
+  }
+
+  setCanvas(canvas) {
+    this.#canvas = canvas;
+    this.#reloadImage();
   }
 
   async run(position) {
+    if (!this.#canvas) return;
+
     this.#currentFrame++;
 
     if (this.#currentFrame > this.#maxFrame) {

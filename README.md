@@ -26,6 +26,8 @@ It's realy simple to use it, this turtle js lib is a HTML component so you justo
 
 ![image](https://user-images.githubusercontent.com/20938232/141322294-3098e273-73a8-46d2-b84a-3f0c893000b1.png)
 
+the HTML params `widht`, `heigth` and `canvas-class` are the only ones that the component receives. The `canvas-class` sets a class to the drawing canvas, what is usefull if you want to add some styles or even make some changes on the canvas.
+
 The component has a method called createTurtle that retuns a new turtle on the canvas screen
 
 ![image](https://user-images.githubusercontent.com/20938232/141324518-36f2a24f-c5a6-49fb-a7cc-bf56747d8d31.png)

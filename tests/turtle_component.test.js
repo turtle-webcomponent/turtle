@@ -1,3 +1,4 @@
+import '../index';
 import Turtle from '../src/turtle.js';
 import { JSDOM } from 'jsdom';
 import { TurtleComponent } from '../src/turtle_component.js';
@@ -55,7 +56,7 @@ describe('when component is created correctly', () => {
 
   test('can create a new turtle', () => {
     const document = global.document.cloneNode(true);
-    const turtle = component.getTurtle();
+    const turtle = component.createTurtle();
 
     expect(turtle instanceof Turtle).toBe(true);
     expect(document).not.toMatchObject(global.document);

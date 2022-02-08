@@ -1,4 +1,5 @@
 import TurtleComponent from '../src/turtle_component.js';
+import '../index';
 const { sleep } = require('../src/utils.js');
 
 jest.setTimeout(10000);
@@ -6,13 +7,13 @@ jest.setTimeout(10000);
 describe('when turtle is correctly instanced', () => {
   let canvas = global.document.createElement('x-turtle');
   global.document.body.appendChild(canvas);
-  let component = global.document.getElementsByTagName('x-turtle')[0].getTurtle();
+  let component = global.document.getElementsByTagName('x-turtle')[0].createTurtle();
 
   const resetTurtle = () => {
     global.document.body.innerHTML = '';
     canvas = global.document.createElement('x-turtle');
     global.document.body.appendChild(canvas);
-    component = global.document.getElementsByTagName('x-turtle')[0].getTurtle();
+    component = global.document.getElementsByTagName('x-turtle')[0].createTurtle();
   };
 
   const getPosition = async () => {

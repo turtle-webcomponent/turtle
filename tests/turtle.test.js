@@ -115,7 +115,7 @@ describe('when turtle is correctly instanced', () => {
     const finalAngle = component.angle;
 
     expect(initialAngle).not.toEqual(finalAngle);
-    expect(finalAngle).toEqual(315);
+    expect(finalAngle).toEqual(-45);
 
     resetTurtle();
   });

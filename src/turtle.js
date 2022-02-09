@@ -1,5 +1,7 @@
 import { sleep, angleInRadians, positionWithAngle } from './utils.js';
 
+const FULL_CIRCUNFERENCE_ANGLE = 360
+
 export default class Turtle {
   #position
   #angle
@@ -39,14 +41,14 @@ export default class Turtle {
 
     this.#actions = []
 
-    this.init = this.init.bind(this)
+    this.runTurtleActionsAndAnimation = this.runTurtleActionsAndAnimation.bind(this)
   }
 
-  async init() {
+  async runTurtleActionsAndAnimation() {
     const FPS = 33
 
     let delayUpdate = await this.#update()
-    let delayDraw = await this.#draw()
+    let delayDraw = await this.#spriteAnimation()
 
     let delayTotal = (FPS - ((delayUpdate + delayDraw) * 1000))
 
@@ -58,7 +60,7 @@ export default class Turtle {
   async #update() {
     let t0 = performance.now()
     if (this.#actions.length) {
-      await this[this.#actions[0].action](...this.#actions[0].parameters)
+      await this.#runAction()
       this.#actions.splice(0, 1)
     }
     let t1 = performance.now()
@@ -73,7 +75,45 @@ export default class Turtle {
     this.#actions.push({ action: 'forwardAction', parameters: [distance] })
   }
 
-  async forwardAction(distance) {
+  async #runAction() {
+    switch(this.#actions[0].action) {
+      case "forwardAction":
+        await this.#forwardAction(...this.#actions[0].parameters)
+        break;
+      case "setLineColorAction":
+        await this.#setLineColorAction(...this.#actions[0].parameters)
+        break;
+      case "circleAction":
+        await this.#circleAction(...this.#actions[0].parameters)
+        break;
+      case "rectangleAction":
+        await this.#rectangleAction(...this.#actions[0].parameters)
+        break;
+      case "speedAction":
+        this.#speedAction(...this.#actions[0].parameters)
+        break;
+      case "leftAction":
+        await this.#leftAction(...this.#actions[0].parameters)
+        break;
+      case "rightAction":
+        await this.#rightAction(...this.#actions[0].parameters)
+        break;
+      case "setPositionAction":
+        await this.#setPositionAction(...this.#actions[0].parameters)
+        break;
+      case "penUpAction":
+        await this.#penUpAction(...this.#actions[0].parameters)
+        break;
+      case "penDownAction":
+        await this.#penDownAction(...this.#actions[0].parameters)
+        break;
+      case "setLineWidthAction":
+        await this.#setLineWidthAction(...this.#actions[0].parameters)
+        break;
+    }
+  }
+
+  async #forwardAction(distance) {
     this.#backgroundCanvas.beginPath();
 
     this.#moving = true;
@@ -102,7 +142,7 @@ export default class Turtle {
       this.#backgroundCanvas.lineTo(this.#position.x, this.#position.y);
 
       this.#backgroundCanvas.stroke();
-      this.#draw();
+      this.#spriteAnimation();
 
       distance -= displacement
 
@@ -119,7 +159,7 @@ export default class Turtle {
     this.#actions.push({ action: 'setLineColorAction', parameters: [color] })
   }
 
-  async setLineColorAction(color) {
+  async #setLineColorAction(color) {
     this.#color = color;
 
     if (!this.#penUp) {
@@ -128,21 +168,30 @@ export default class Turtle {
     }
   }
 
-  circle(radius) {
-    this.#actions.push({ action: 'circleAction', parameters: [radius] })
+  circle(radius, circumferenceAngle = FULL_CIRCUNFERENCE_ANGLE) {
+    this.#actions.push({ action: 'circleAction', parameters: [radius, circumferenceAngle] })
   }
 
-  async circleAction(radius) {
+  async #circleAction(radius, circumferenceAngle) {
     this.#backgroundCanvas.beginPath();
-    this.#backgroundCanvas.arc(this.#position.x, this.#position.y, radius, 0, 2 * Math.PI);
+
+    let circumferenceStartAngle = this.#angle
+    let circumferenceEndAgnle = circumferenceAngle+this.#angle
+
+    if(circumferenceAngle < 0) {
+      circumferenceStartAngle = circumferenceAngle+this.#angle
+      circumferenceEndAgnle = this.#angle
+    }
+
+    this.#backgroundCanvas.arc(this.#position.x, this.#position.y, radius, angleInRadians(circumferenceStartAngle), angleInRadians(circumferenceEndAgnle));
   }
 
   rectangle(width, height) {
     this.#actions.push({ action: 'rectangleAction', parameters: [width, height] })
   }
 
-  async rectangleAction(width, height) {
-    this.#backgroundCanvas.rect(this.#position.x, this.#position.y, width, height);
+  async #rectangleAction(width, height) {
+    await this.#backgroundCanvas.rect(this.#position.x, this.#position.y, width, height);
   }
 
   speed(speed) {
@@ -150,7 +199,7 @@ export default class Turtle {
     else return this.#speed;
   }
 
-  async speedAction(speed) {
+  async #speedAction(speed) {
     this.#speed = speed;
   }
 
@@ -167,7 +216,19 @@ export default class Turtle {
     this.#actions.push({ action: 'rightAction', parameters: [value] })
   }
 
-  async rightAction(value) {
+  async #rightAction(value) {
+    this.#rotateLine(value)
+  }
+
+  left(value) {
+    this.#actions.push({ action: 'leftAction', parameters: [value] })
+  }
+
+  async #leftAction(value) {
+    this.#rotateLine(-value)
+  }
+
+  async #rotateLine(value) {
     this.#angle += parseInt(value)
 
     while (this.angle >= 360)
@@ -176,24 +237,12 @@ export default class Turtle {
     this.#rotateForegroundCanvas('right', value)
   }
 
-  left(value) {
-    this.#actions.push({ action: 'leftAction', parameters: [value] })
-  }
-
-  async leftAction(value) {
-    this.#angle -= parseFloat(value)
-
-    while (this.angle < 0)
-      this.#angle = this.#angle + 360
-
-    this.#rotateForegroundCanvas('left', value)
-  }
-
   #rotateForegroundCanvas(direction, value) {
     if (direction == 'left')
       value *= -1
 
     this.#foregroundCanvas.translate(this.#spritePosition.x, this.#spritePosition.y);
+    // this rotate works using the center of the canvas defined on translate as reference
     this.#foregroundCanvas.rotate(angleInRadians(value))
     this.#foregroundCanvas.translate(-this.#spritePosition.x, -this.#spritePosition.y);
   }
@@ -202,7 +251,7 @@ export default class Turtle {
     this.#actions.push({ action: 'setPositionAction', parameters: [x, y] })
   }
 
-  async setPositionAction(x, y) {
+  async #setPositionAction(x, y) {
     x = parseFloat(x)
     y = parseFloat(y)
 
@@ -227,7 +276,7 @@ export default class Turtle {
     this.#actions.push({ action: 'penUpAction', parameters: [] });
   }
 
-  async penUpAction() {
+  async #penUpAction() {
     this.#penUp = true;
     this.#backgroundCanvas.strokeStyle = this.#invisibleColor;
     this.#backgroundCanvas.beginPath();
@@ -237,14 +286,22 @@ export default class Turtle {
     this.#actions.push({ action: 'penDownAction', parameters: [] });
   }
 
-  async penDownAction() {
+  async #penDownAction() {
     this.#penUp = false;
     this.#backgroundCanvas.strokeStyle = this.color;
     this.#backgroundCanvas.beginPath();
     this.#backgroundCanvas.strokeStyle = this.#color;
   }
 
-  async #draw() {
+  setLineWidth(width) {
+    this.#actions.push({ action: 'setLineWidthAction', parameters: [width] });
+  }
+
+  async #setLineWidthAction(width) {
+    this.#backgroundCanvas.lineWidth = width;
+  }
+
+  async #spriteAnimation() {
     var t0 = performance.now()
     this.#backgroundCanvas.stroke();
 

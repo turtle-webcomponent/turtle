@@ -1,6 +1,7 @@
 import { sleep, angleInRadians, positionWithAngle } from './utils.js';
 
 const FULL_CIRCUNFERENCE_ANGLE = 360
+const INVISIBLE_COLOR = 'rgb(0, 0, 0, 0)';
 
 export default class Turtle {
   #position
@@ -12,7 +13,6 @@ export default class Turtle {
   #height
   #color
   #penUp
-  #invisibleColor
 
   #backgroundCanvas
   #foregroundCanvas
@@ -30,7 +30,6 @@ export default class Turtle {
     this.#width = width;
     this.#height = height;
     this.#color = 'black';
-    this.#invisibleColor = 'rgb(0, 0, 0, 0)';
 
     this.#backgroundCanvas = backgroundCanvas;
     this.#foregroundCanvas = foregroundCanvas;
@@ -57,6 +56,73 @@ export default class Turtle {
     }
   }
 
+  forward(distance) {
+    this.#actions.push({ action: 'forwardAction', parameters: [distance] })
+  }
+
+  backward(value) {
+    this.#actions.push({ action: 'forwardAction', parameters: [-value] })
+  }
+
+  setLineColor(color) {
+    this.#actions.push({ action: 'setLineColorAction', parameters: [color] })
+  }
+
+  circle(radius, circumferenceAngle = FULL_CIRCUNFERENCE_ANGLE) {
+    this.#actions.push({ action: 'circleAction', parameters: [radius, circumferenceAngle] })
+  }
+
+  rectangle(width, height) {
+    this.#actions.push({ action: 'rectangleAction', parameters: [width, height] })
+  }
+
+  async #rectangleAction(width, height) {
+    await this.#backgroundCanvas.rect(this.#position.x, this.#position.y, width, height);
+  }
+
+  speed(speed) {
+    if (speed) this.#actions.push({ action: 'speedAction', parameters: [speed] });
+    else return this.#speed;
+  }
+
+  async clear() {
+    this.#foregroundCanvas.fillStyle = "rgba(0,0,0,1)";
+    this.#foregroundCanvas.globalCompositeOperation = "destination-out";
+  }
+
+  turtleCommandsList(commands) {
+    this.#actions = commands
+  }
+
+  right(value) {
+    this.#actions.push({ action: 'rightAction', parameters: [value] })
+  }
+
+  setPosition(x, y) {
+    this.#actions.push({ action: 'setPositionAction', parameters: [x, y] })
+  }
+
+  async getPosition() {
+    while (this.#actions.length !== 0)
+      await sleep(33)
+
+    return this.#position
+  }
+
+  penUp() {
+    this.#actions.push({ action: 'penUpAction', parameters: [] });
+  }
+
+  penDown() {
+    this.#actions.push({ action: 'penDownAction', parameters: [] });
+  }
+
+  setLineWidth(width) {
+    this.#actions.push({ action: 'setLineWidthAction', parameters: [width] });
+  }
+
+  // Private Methods
+
   async #update() {
     let t0 = performance.now()
     if (this.#actions.length) {
@@ -65,14 +131,6 @@ export default class Turtle {
     }
     let t1 = performance.now()
     return t1 - t0
-  }
-
-  get angle() {
-    return this.#angle;
-  }
-
-  forward(distance) {
-    this.#actions.push({ action: 'forwardAction', parameters: [distance] })
   }
 
   async #runAction() {
@@ -151,14 +209,6 @@ export default class Turtle {
     this.#moving = false;
   }
 
-  backward(value) {
-    this.#actions.push({ action: 'forwardAction', parameters: [-value] })
-  }
-
-  setLineColor(color) {
-    this.#actions.push({ action: 'setLineColorAction', parameters: [color] })
-  }
-
   async #setLineColorAction(color) {
     this.#color = color;
 
@@ -166,10 +216,6 @@ export default class Turtle {
       this.#backgroundCanvas.beginPath();
       this.#backgroundCanvas.strokeStyle = color;
     }
-  }
-
-  circle(radius, circumferenceAngle = FULL_CIRCUNFERENCE_ANGLE) {
-    this.#actions.push({ action: 'circleAction', parameters: [radius, circumferenceAngle] })
   }
 
   async #circleAction(radius, circumferenceAngle) {
@@ -186,34 +232,8 @@ export default class Turtle {
     this.#backgroundCanvas.arc(this.#position.x, this.#position.y, radius, angleInRadians(circumferenceStartAngle), angleInRadians(circumferenceEndAgnle));
   }
 
-  rectangle(width, height) {
-    this.#actions.push({ action: 'rectangleAction', parameters: [width, height] })
-  }
-
-  async #rectangleAction(width, height) {
-    await this.#backgroundCanvas.rect(this.#position.x, this.#position.y, width, height);
-  }
-
-  speed(speed) {
-    if (speed) this.#actions.push({ action: 'speedAction', parameters: [speed] });
-    else return this.#speed;
-  }
-
   async #speedAction(speed) {
     this.#speed = speed;
-  }
-
-  async clear() {
-    this.#foregroundCanvas.fillStyle = "rgba(0,0,0,1)";
-    this.#foregroundCanvas.globalCompositeOperation = "destination-out";
-  }
-
-  turtleCommandsList(commands) {
-    this.#actions = commands
-  }
-
-  right(value) {
-    this.#actions.push({ action: 'rightAction', parameters: [value] })
   }
 
   async #rightAction(value) {
@@ -241,14 +261,10 @@ export default class Turtle {
     if (direction == 'left')
       value *= -1
 
-    this.#foregroundCanvas.translate(this.#spritePosition.x, this.#spritePosition.y);
-    // this rotate works using the center of the canvas defined on translate as reference
-    this.#foregroundCanvas.rotate(angleInRadians(value))
-    this.#foregroundCanvas.translate(-this.#spritePosition.x, -this.#spritePosition.y);
-  }
-
-  setPosition(x, y) {
-    this.#actions.push({ action: 'setPositionAction', parameters: [x, y] })
+      this.#foregroundCanvas.translate(this.#spritePosition.x, this.#spritePosition.y);
+      // this rotate works using the center of the canvas defined on translate as reference
+      this.#foregroundCanvas.rotate(angleInRadians(value))
+      this.#foregroundCanvas.translate(-this.#spritePosition.x, -this.#spritePosition.y);
   }
 
   async #setPositionAction(x, y) {
@@ -265,27 +281,6 @@ export default class Turtle {
     this.#rotateForegroundCanvas("", this.#angle)
   }
 
-  async getPosition() {
-    while (this.#actions.length !== 0)
-      await sleep(33)
-
-    return this.#position
-  }
-
-  penUp() {
-    this.#actions.push({ action: 'penUpAction', parameters: [] });
-  }
-
-  async #penUpAction() {
-    this.#penUp = true;
-    this.#backgroundCanvas.strokeStyle = this.#invisibleColor;
-    this.#backgroundCanvas.beginPath();
-  }
-
-  penDown() {
-    this.#actions.push({ action: 'penDownAction', parameters: [] });
-  }
-
   async #penDownAction() {
     this.#penUp = false;
     this.#backgroundCanvas.strokeStyle = this.color;
@@ -293,8 +288,10 @@ export default class Turtle {
     this.#backgroundCanvas.strokeStyle = this.#color;
   }
 
-  setLineWidth(width) {
-    this.#actions.push({ action: 'setLineWidthAction', parameters: [width] });
+  async #penUpAction() {
+    this.#penUp = true;
+    this.#backgroundCanvas.strokeStyle = INVISIBLE_COLOR;
+    this.#backgroundCanvas.beginPath();
   }
 
   async #setLineWidthAction(width) {
@@ -305,6 +302,7 @@ export default class Turtle {
     var t0 = performance.now()
     this.#backgroundCanvas.stroke();
 
+    // Implement a better clear thinkin in this magic numbers
     this.#foregroundCanvas.clearRect(
       this.#spritePosition.x - this.#width,
       this.#spritePosition.y - this.#height,

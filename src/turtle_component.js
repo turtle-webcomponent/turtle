@@ -89,7 +89,7 @@ class TurtleComponent extends HTMLElement {
 
   async #update(turtle){
     while(true) {
-      await turtle.init();
+      await turtle.runTurtleActionsAndAnimation();
     }
   }
 

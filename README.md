@@ -2,7 +2,15 @@
 
   Turtle is a way to create graphic elements on the screen with a cartesian plan(x, y) using commands, the original turtle was based on logo language that was used to move robots. Turtle is very popular to teach kids how to programming, and this library implements some of this turtle commands in javascrypt language to be used in any web application or even on jupyter notebook.
 
-## How to install
+## Install
+
+```sh
+$ yarn install
+$ yarn build
+$ yarn start
+```
+
+## Add package on project
 
   To use turtle component you just need to add this lib on your package json:
 
@@ -18,7 +26,7 @@
    
 ### Installing on jupyter notebook
 
-  ...
+See README in [ipyxturtle](https://github.com/x-turtle/ipyxturtle) implementation.
 
 ## How to Use
 

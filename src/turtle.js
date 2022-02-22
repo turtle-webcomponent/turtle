@@ -85,6 +85,11 @@ export default class Turtle {
     else return this.#speed;
   }
 
+  angle(angle) {
+    if (angle) this.#actions.push({ action: 'angleAction', parameters: [angle] });
+    else return this.#angle;
+  }
+
   async clear() {
     this.#foregroundCanvas.fillStyle = "rgba(0,0,0,1)";
     this.#foregroundCanvas.globalCompositeOperation = "destination-out";
@@ -149,6 +154,9 @@ export default class Turtle {
         break;
       case "speedAction":
         this.#speedAction(...this.#actions[0].parameters)
+        break;
+      case "angleAction":
+        this.#angleAction(...this.#actions[0].parameters)
         break;
       case "leftAction":
         await this.#leftAction(...this.#actions[0].parameters)
@@ -222,18 +230,22 @@ export default class Turtle {
     this.#backgroundCanvas.beginPath();
 
     let circumferenceStartAngle = this.#angle
-    let circumferenceEndAgnle = circumferenceAngle+this.#angle
+    let circumferenceEndAngle = circumferenceAngle+this.#angle
 
     if(circumferenceAngle < 0) {
       circumferenceStartAngle = circumferenceAngle+this.#angle
-      circumferenceEndAgnle = this.#angle
+      circumferenceEndAngle = this.#angle
     }
 
-    this.#backgroundCanvas.arc(this.#position.x, this.#position.y, radius, angleInRadians(circumferenceStartAngle), angleInRadians(circumferenceEndAgnle));
+    this.#backgroundCanvas.arc(this.#position.x, this.#position.y, radius, angleInRadians(circumferenceStartAngle), angleInRadians(circumferenceEndAngle));
   }
 
   async #speedAction(speed) {
     this.#speed = speed;
+  }
+
+  #angleAction(angle) {
+    this.#angle = angle;
   }
 
   async #rightAction(value) {
@@ -251,7 +263,7 @@ export default class Turtle {
   async #rotateLine(value) {
     this.#angle += parseInt(value)
 
-    while (this.angle >= 360)
+    while (this.#angle >= 360)
       this.#angle = this.#angle - 360
 
     this.#rotateForegroundCanvas('right', value)

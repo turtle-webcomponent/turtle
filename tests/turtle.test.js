@@ -28,7 +28,7 @@ describe('when turtle is correctly instanced', () => {
     const finalPosition = await getPosition();
 
     expect(initialPosition).not.toEqual(finalPosition);
-    expect(component.angle).toEqual(0);
+    expect(component.angle()).toEqual(0);
     expect(finalPosition.x).toEqual(100);
 
     resetTurtle();
@@ -40,7 +40,7 @@ describe('when turtle is correctly instanced', () => {
     const finalPosition = await getPosition();
 
     expect(initialPosition).not.toEqual(finalPosition);
-    expect(component.angle).toEqual(0);
+    expect(component.angle()).toEqual(0);
     expect(finalPosition.x).toEqual(-100);
 
     resetTurtle();
@@ -76,12 +76,12 @@ describe('when turtle is correctly instanced', () => {
   });
 
   test('change turtle angle in right direction', async () => {
-    const initialAngle = component.angle;
+    const initialAngle = component.angle();
 
     component.right(45);
     await sleep(1000);
 
-    const finalAngle = component.angle;
+    const finalAngle = component.angle();
 
     expect(initialAngle).not.toEqual(finalAngle);
     expect(finalAngle).toEqual(45);
@@ -93,12 +93,12 @@ describe('when turtle is correctly instanced', () => {
     component.right(315);
     await sleep(1000);
 
-    const initialAngle = component.angle;
+    const initialAngle = component.angle();
 
     component.right(45);
     await sleep(1000);
 
-    const finalAngle = component.angle;
+    const finalAngle = component.angle();
 
     expect(initialAngle).not.toEqual(finalAngle);
     expect(finalAngle).toEqual(0);
@@ -107,12 +107,12 @@ describe('when turtle is correctly instanced', () => {
   });
 
   test('change turtle angle in left direction', async () => {
-    const initialAngle = component.angle;
+    const initialAngle = component.angle();
 
     component.left(45);
     await sleep(1000);
 
-    const finalAngle = component.angle;
+    const finalAngle = component.angle();
 
     expect(initialAngle).not.toEqual(finalAngle);
     expect(finalAngle).toEqual(-45);

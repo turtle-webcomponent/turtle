@@ -1,10 +1,10 @@
 {
-  "name": "turtle-component",
-  "version": "0.9.8",
+  "name": "xturtle",
+  "version": "1.0.0",
   "description": "WebComponent to render a turtle canvas in web applications",
   "main": "index.js",
   "type": "module",
-  "repository": "https://github.com/ThalissonMelo/turtle",
+  "repository": "https://github.com/x-turtle/xturtle",
   "author": "Guilherme Silva <guilherme.francais@gmail.com> e Thalisson Melo <tallisonmelo@hotmail.com>",
   "license": "MIT",
   "scripts": {

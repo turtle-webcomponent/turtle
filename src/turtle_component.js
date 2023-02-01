@@ -1,5 +1,3 @@
-import idleTurtle from '../assets/idle_turtle.png';
-import moveTurtle from '../assets/turtle.png';
 import Sprite from './sprite.js';
 import Turtle from './turtle.js';
 
@@ -112,14 +110,14 @@ class TurtleComponent extends HTMLElement {
 
   #idleSprite(idleSprite, forwardCanvas) {
     idleSprite = new Image();
-    idleSprite.src = idleTurtle;
+    idleSprite.src = 'https://i.imgur.com/VyRnYnX.png';
 
     return new Sprite(1, 10, idleSprite, forwardCanvas, 0.2);
   }
 
   #moveSprite(moveSprite, forwardCanvas) {
     moveSprite = new Image();
-    moveSprite.src = moveTurtle;
+    moveSprite.src = 'https://i.imgur.com/scpCzY8.png';
 
     return new Sprite(1, 8, moveSprite, forwardCanvas, 0.2);
   }

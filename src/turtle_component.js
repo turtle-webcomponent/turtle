@@ -108,35 +108,36 @@ class TurtleComponent extends HTMLElement {
     return foregroundCanvasContext
   }
 
-  #idleSprite(idleSprite, forwardCanvas) {
-    idleSprite = new Image();
-    idleSprite.src = 'https://i.imgur.com/VyRnYnX.png';
+  #idleSprite(idleSprite, idleSpriteSize, scale, forwardCanvas) {
+    if(idleSprite == null) {
+      idleSprite = new Image();
+      idleSprite.src = 'https://i.imgur.com/VyRnYnX.png';
+    }
 
-    return new Sprite(1, 10, idleSprite, forwardCanvas, 0.2);
+    return new Sprite(1, idleSpriteSize, idleSprite, forwardCanvas, scale);
   }
 
-  #moveSprite(moveSprite, forwardCanvas) {
-    moveSprite = new Image();
-    moveSprite.src = 'https://i.imgur.com/scpCzY8.png';
+  #moveSprite(moveSprite, moveSpriteSize, scale, forwardCanvas) {
+    if(moveSprite == null) {
+      moveSprite = new Image();
+      moveSprite.src = 'https://i.imgur.com/scpCzY8.png';
+    }
 
-    return new Sprite(1, 8, moveSprite, forwardCanvas, 0.2);
+    return new Sprite(1, moveSpriteSize, moveSprite, forwardCanvas, scale);
   }
 
   buildSprite(rows, colums, image, scale) {
     return new Sprite(rows, colums, image, null, scale);
   }
 
-  createTurtle(idleSprite = null, moveSprite = null) {
+  createTurtle(idleSprite = null, idleSpriteSize = 10, moveSprite = null, moveSpriteSize = 8, scale = 0.2) {
     let forwardCanvas = this.#buildForwardCanvas();
-
-    if (idleSprite) idleSprite.setCanvas(forwardCanvas);
-    if (moveSprite) moveSprite.setCanvas(forwardCanvas);
 
     let turtle = new Turtle(
       this.#backgroundCanvas.getContext("2d"),
       forwardCanvas,
-      (idleSprite == null) ? this.#idleSprite(idleSprite, forwardCanvas) : idleSprite,
-      (moveSprite == null) ? this.#moveSprite(moveSprite, forwardCanvas) : moveSprite,
+      this.#idleSprite(idleSprite, idleSpriteSize, scale, forwardCanvas),
+      this.#moveSprite(moveSprite, moveSpriteSize, scale, forwardCanvas),
       this.width,
       this.height
     );

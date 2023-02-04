@@ -59,6 +59,12 @@ you can draw this:
 
 ![image](https://user-images.githubusercontent.com/20938232/141325463-5c952176-cd87-4fb2-8a57-3baf1fef9e65.png)
 
+You also can change the sprites by using this:
+
+```javascript
+createTurtle(idle_sprite, cuts_on_idle_sprite, move_sprite, cuts_on_move_sprite, scale)
+```
+
 Have fun!
 
 ## Turtle functions

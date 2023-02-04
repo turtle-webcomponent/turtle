@@ -64,6 +64,7 @@ You also can change the sprites by using this:
 ```javascript
 createTurtle(idle_sprite, cuts_on_idle_sprite, move_sprite, cuts_on_move_sprite, scale)
 ```
+Where the sprites must be an HTML <img> tag, the cuts must be an integer value and the scale a float value.
 
 Have fun!
 

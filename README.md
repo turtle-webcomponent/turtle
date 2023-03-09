@@ -73,7 +73,7 @@ Have fun!
 * forward(value): draw a line forward the size you define
 * backward(value): draw a line backward the size you define
 * setLineColor(color): changes the line color
-* circle(radius): creates a circle on the screen wiht the defined radius
+* circle(radius, arc): creates a circle on the screen wiht the defined radius
 * rectangle(width, height): creats a retangle on the screen with the defined width and height
 * speed(value): Changes the draw speed
 * clear(): Cleans the canvas
